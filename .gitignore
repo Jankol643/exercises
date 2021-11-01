@@ -1,2 +1,6 @@
 quelltext
 *.zip
+bin
+.settings
+.classpath
+.projects
