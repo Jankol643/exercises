@@ -1,8 +1,6 @@
 quelltext
 *.zip
 bin
-.settings
-.classpath
-.project
-.projects
+.*
 module-info.java
+access_time.txt
