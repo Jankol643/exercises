@@ -210,6 +210,7 @@ def open_browser(link):
     """
     Open a browser and returns the HTML
     :string link: link to return HTML from
+    :returns: HTML of given link
     """
     br = mechanize.Browser()
     # br.set_handle_robots(False)
