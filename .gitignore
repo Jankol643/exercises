@@ -5,3 +5,4 @@ bin
 module-info.java
 access_time.txt
 test[0-9]*.py
+__pycache__
