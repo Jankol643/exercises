@@ -11,6 +11,7 @@ import time
 
 FOLDER = os.path.dirname(os.path.abspath(__file__))
 FOLDER = FOLDER.replace("\\", '/')
+FOLDER = FOLDER + '/'
 PATH = FOLDER + 'access_time.txt'
 TIMEOUT = 5  # in seconds
 DATAPATH = FOLDER + 'items.csv'
@@ -57,7 +58,6 @@ def handle_timeout():
     """
     Ensures that website is only scraped every TIMEOUT seconds
     """
-
     if os.path.exists(PATH):
         first_execution = False
         with open(PATH, 'r') as file:
@@ -103,8 +103,8 @@ def file_lines(file_path):
 
         with open(file_path, "rb") as f:
             count = sum(buf.count(b"\n") for buf in _make_gen(f.raw.read))
-        noLines = count + 1
-        return noLines
+        no_lines = count + 1
+        return no_lines
     else:
         return 0
 
@@ -120,7 +120,7 @@ def get_code_files():
     no_files = 0
     file_extensions = ['.java', '.py']
 
-    for root, dirs, files in os.walk(FOLDER):
+    for _, _, files in os.walk(FOLDER):
         for entry in files:
             for ext in file_extensions:
                 if entry.endswith(ext):
@@ -129,10 +129,10 @@ def get_code_files():
     if (os.path.exists(FILE_LIST) and file_lines(FILE_LIST) == no_files):
         with open(FILE_LIST, 'r') as f:
             for line in f:
-                line = f.readline()
+                line = line.replace('\n', '')
                 result.append(line)
     else:
-        for root, dirs, files in os.walk(FOLDER):
+        for root, _, files in os.walk(FOLDER):
             for entry in files:
                 for ext in file_extensions:
                     if entry.endswith(ext):
@@ -142,7 +142,7 @@ def get_code_files():
 
         with open(FILE_LIST, 'w') as f:
             for res in result:
-                f.write(res + "\n")
+                f.write(res + '\n')
     return result
 
 
@@ -169,14 +169,29 @@ def get_problem_link(file):
     Gets the problem link from a HackerRank code file
     """
     try:
-        with open(file, 'r') as f:
-            first_line = f.readline()
-        link = first_line
-        success = True
+        lines = []
+        if file_lines(file) > 1:
+            with open(file, 'r') as f:
+                for line in f:
+                    lines.append(line)
+            for line in lines:
+                lines[lines.index(line)] = line.replace('\n', '')
+            first_line = lines[0]
+            if first_line == '#!/bin/python3':
+                link = lines[1]
+            else:
+                link = first_line
+            link = link[1:] # remove comment sign ('#') from link
+            success = True
+            return link, success
+        else: # file has only one line
+            link = None
+            success = False
+            return link, success
     except IOError:
         link = None
         success = False
-    return link, success
+        return link, success
 
 
 def process_problems():
