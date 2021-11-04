@@ -11,7 +11,7 @@ import time
 
 FOLDER = os.path.dirname(os.path.abspath(__file__))
 FOLDER = FOLDER.replace("\\", '/')
-FOLDER = FOLDER + '/'
+PROBLEMS = FOLDER + '/problems/'
 PATH = FOLDER + 'access_time.txt'
 TIMEOUT = 5  # in seconds
 DATAPATH = FOLDER + 'items.csv'
@@ -23,7 +23,7 @@ def files_to_push():
     Checks if there are any uncommited files since last commit and aborts program
     """
     command = 'git status'
-    p = subprocess.check_output(command, cwd=FOLDER, shell=True)
+    p = subprocess.check_output(command, cwd=PROBLEMS, shell=True)
     p = p.decode('utf-8')
     nlines = p.count('\n')
     if nlines > 4:  # output with no uncommitted files is 4
@@ -120,7 +120,7 @@ def get_code_files():
     no_files = 0
     file_extensions = ['.java', '.py']
 
-    for _, _, files in os.walk(FOLDER):
+    for _, _, files in os.walk(PROBLEMS):
         for entry in files:
             for ext in file_extensions:
                 if entry.endswith(ext):
@@ -132,7 +132,7 @@ def get_code_files():
                 line = line.replace('\n', '')
                 result.append(line)
     else:
-        for root, _, files in os.walk(FOLDER):
+        for root, _, files in os.walk(PROBLEMS):
             for entry in files:
                 for ext in file_extensions:
                     if entry.endswith(ext):
@@ -205,7 +205,7 @@ def process_problems():
     for file in file_paths:
         index = file_paths.index(file)
         print("Converting file " + str(index) +
-              "of " + str(length) + " files...")
+              " of " + str(length) + " files...")
         link, success = get_problem_link(file)
         if success is False:
             break
@@ -231,7 +231,7 @@ def open_browser(link):
     # br.set_handle_robots(False)
     # br.set_handle_equiv(False)
     br.addheaders = [set_random_user_agent()]
-    handle_timeout(TIMEOUT, PATH)
+    handle_timeout()
     response = br.open(link)
 
     now = DateTime.now()
@@ -279,7 +279,7 @@ def get_solved_date(file):
     process = subprocess.Popen("git pull", stdout=subprocess.PIPE)
 
     command = 'git log --follow -p -- ' + "\"" + file + "\""
-    p = subprocess.check_output(command, cwd=FOLDER, shell=True)
+    p = subprocess.check_output(command, cwd=PROBLEMS, shell=True)
 
     p = p.decode('utf-8')
     p = p.split('\n')[2]
