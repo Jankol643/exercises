@@ -1,21 +1,19 @@
 import os
 import subprocess
-
-import mechanize  # for scraping website for difficulty
-# for random user agent when scraping website
-from random_user_agent.user_agent import UserAgent
-from datetime import datetime as DateTime, timedelta as TimeDelta  # for setting timeout
-from bs4 import BeautifulSoup  # for getting HTML elements of website
 import requests
-import time
+from datetime import datetime as DateTime  # for setting timeout
+from internet import open_browser, get_problem_link_URL # for opening browser
+import time # for determinating file creation time
+import re # for sorting files
+from pathlib import Path # for sorting files
 
 FOLDER = os.path.dirname(os.path.abspath(__file__))
 FOLDER = FOLDER.replace("\\", '/')
 PROBLEMS = FOLDER + '/problems/'
-PATH = FOLDER + 'access_time.txt'
-TIMEOUT = 5  # in seconds
-DATAPATH = FOLDER + 'items.csv'
-FILE_LIST = FOLDER + 'file_list.txt'
+DATAPATH = FOLDER + '/' + 'items.csv'
+FILE_LIST = FOLDER + '/' + 'file_list.txt'
+# if creation or last modification ('last modified') date should be set as solved date
+DATE = 'creation'
 
 
 def files_to_push():
@@ -41,51 +39,6 @@ class HackerRankProblem():
         self.difficulty = difficulty
         self.solved_date = solved_date
         self.instruction = instruction
-
-
-def set_random_user_agent():
-    """
-    Sets a random user agent
-    :returns: random user agent
-    """
-    set_popularity = ['POPULARITY.POPULAR.value', 'POPULARITY.COMMON.value']
-    user_agent_rotator = UserAgent(Popularity=set_popularity, limit=10000)
-    random_user_agent = user_agent_rotator.get_random_user_agent()
-    return {'User-Agent': random_user_agent, 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'}
-
-
-def handle_timeout():
-    """
-    Ensures that website is only scraped every TIMEOUT seconds
-    """
-    if os.path.exists(PATH):
-        first_execution = False
-        with open(PATH, 'r') as file:
-            last_execution = file.readline()
-    else:
-        first_execution = True
-        # create a file
-        now = str(DateTime.now())
-        with open(PATH, 'w') as file:
-            file.write(now)
-        last_execution = now
-
-    def prevent_blocking(last_execution, next_execution, first_execution):
-        """
-        Prevent that website is scraped too often
-        :datetime last_execution: date and time of last execution
-        :datetime next_execution: date and time of next execution
-        :boolean first_execution: True if script is executed for the first time
-        """
-        if (last_execution < next_execution and first_execution == False):
-            print("Waiting " + str(TIMEOUT) +
-                  " seconds to not scrape website too often.")
-            time.sleep(TIMEOUT)
-
-    last_execution = DateTime.strptime(last_execution, '%Y-%m-%d %H:%M:%S.%f')
-    next_execution = last_execution + TimeDelta(seconds=TIMEOUT)
-
-    prevent_blocking(last_execution, next_execution, first_execution)
 
 
 def file_lines(file_path):
@@ -120,6 +73,22 @@ def get_code_files():
     no_files = 0
     file_extensions = ['.java', '.py']
 
+    def sort_logically(result):
+        """
+        Sorts list like 1, 2, 10 instead of 1, 10, 2
+        :list result: list to sort
+        :returns: sorted list
+        """
+        result2 = list()
+        for item in result:
+            path = Path(item)
+            result2.append(path)
+
+        result = sorted(result2, key = lambda x: [int(k) if k.isdigit() else k for k in re.split('([0-9]+)', x.stem)])
+        for item in result:
+            result[result.index(item)] = str(item)
+        return result
+
     for _, _, files in os.walk(PROBLEMS):
         for entry in files:
             for ext in file_extensions:
@@ -139,10 +108,12 @@ def get_code_files():
                         entry = os.path.join(root, entry)
                         entry = entry.replace('\\', '/')
                         result.append(entry)
-
+        
+        result = sort_logically(result)
         with open(FILE_LIST, 'w') as f:
             for res in result:
                 f.write(res + '\n')
+
     return result
 
 
@@ -151,47 +122,63 @@ def check_problem_links():
     Reads problem link from each code file
     :returns: list of links, errors
     """
-    files = get_code_files()
+    file_paths = get_code_files()
     links = list()
     errors = list()
 
-    for file in files:
-        link, success = get_problem_link(file)
+    for file_path in file_paths:
+        index = file_paths.index(file_path)
+        link, success = get_problem_link(file_path, index)
         if success == True:
             links.append(link)
         else:
-            errors.append(file)
+            errors.append(file_path)
+    if len(errors) == len(file_paths):
+        raise Exception("Fetching the links failed for all problems")
     return links, errors
 
 
-def get_problem_link(file):
+def get_problem_link(file_path, index):
     """
     Gets the problem link from a HackerRank code file
     """
-    try:
-        lines = []
-        if file_lines(file) > 1:
-            with open(file, 'r') as f:
-                for line in f:
-                    lines.append(line)
-            for line in lines:
-                lines[lines.index(line)] = line.replace('\n', '')
-            first_line = lines[0]
-            if first_line == '#!/bin/python3':
-                link = lines[1]
-            else:
-                link = first_line
-            link = link[1:] # remove comment sign ('#') from link
-            success = True
-            return link, success
-        else: # file has only one line
-            link = None
-            success = False
-            return link, success
-    except IOError:
+    lines = []
+    if file_lines(file_path) > 1 and not open_replace_newlines() == None:
+        lines = open_replace_newlines(file_path)
+        first_line = lines[0]
+        if first_line == '#!/bin/python3':
+            if not lines[1].startswith('#https://www.hackerrank.com/'):
+                link, success = get_problem_link_URL(file_path, index)
+                link = None
+                success = False
+                return link, success
+        else:  # first line is link
+            link = first_line
+        link = link[1:]  # remove comment sign ('#') from link
+        success = True
+        return link, success
+    else:  # file has only one line
         link = None
         success = False
         return link, success
+
+
+def open_replace_newlines(file_path):
+    """
+    Opens a file and returns list of lines
+    :returns: list of lines or None if error occured
+    """
+    lines = list()
+    try:
+        with open(file_path, 'r') as f:
+            for line in f:
+                lines.append(line)
+        for line in lines:
+            lines[lines.index(line)] = line.replace('\n', '')
+    except IOError:
+        return None
+    return lines
+
 
 
 def process_problems():
@@ -219,27 +206,6 @@ def process_problems():
         problem_list.append(problem)
         running_id += 1
     return problem_list
-
-
-def open_browser(link):
-    """
-    Open a browser and returns the HTML
-    :string link: link to return HTML from
-    :returns: HTML of given link
-    """
-    br = mechanize.Browser()
-    # br.set_handle_robots(False)
-    # br.set_handle_equiv(False)
-    br.addheaders = [set_random_user_agent()]
-    handle_timeout()
-    response = br.open(link)
-
-    now = DateTime.now()
-    with open(PATH, 'w') as file:
-        file.write(now)
-
-    soup = BeautifulSoup(response.get_data())
-    return soup
 
 
 def get_domains(soup):
@@ -276,16 +242,20 @@ def get_solved_date(file):
     :string file: file to calculate solved date of
     :returns: solved date (int)
     """
-    process = subprocess.Popen("git pull", stdout=subprocess.PIPE)
+    if DATE == 'creation':
+        (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(file)
+        return str(time.ctime(mtime))
+    if DATE == 'last modified':
+        process = subprocess.Popen("git pull", stdout=subprocess.PIPE)
 
-    command = 'git log --follow -p -- ' + "\"" + file + "\""
-    p = subprocess.check_output(command, cwd=PROBLEMS, shell=True)
+        command = 'git log --follow -p -- ' + "\"" + file + "\""
+        p = subprocess.check_output(command, cwd=PROBLEMS, shell=True)
 
-    p = p.decode('utf-8')
-    p = p.split('\n')[2]
-    p = p[8:]
-    dtz = DateTime.strptime(p, "%a %b %d %H:%M:%S %Y %z")
-    return str(dtz)
+        p = p.decode('utf-8')
+        p = p.split('\n')[2]
+        p = p[8:]
+        dtz = DateTime.strptime(p, "%a %b %d %H:%M:%S %Y %z")
+        return str(dtz)
 
 
 def get_instructions(file):
