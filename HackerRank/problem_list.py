@@ -120,7 +120,7 @@ def get_solved_date(file):
 
 def get_instructions(file):
     """
-    Gets the instructions for a HackerRank problems if not present
+    Gets the instructions for a HackerRank problem if not present
     :string file: path to problem file
     :returns: path to instruction file
     """
