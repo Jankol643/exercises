@@ -106,7 +106,7 @@ def login():
     """
     Logs into Hackerrank.com
     """
-
+    print("Logging into hackerrank.com...")
     url = "https://www.hackerrank.com/auth/login"
     result = list()
 
@@ -122,6 +122,7 @@ def login():
     path = get_webdriver_path()
     browser = webdriver.Chrome(path)
     browser.get((url))
+    time.sleep(3)
     username = browser.find_element_by_id('input-6')  # username field
     username.send_keys(username_string)
     password = browser.find_element_by_id('input-7')  # password field
@@ -135,6 +136,7 @@ def logout():
     """
     Logs out of HackerRank
     """
+    print("Logging out of hackerrank.com...")
     path = get_webdriver_path()
     browser = webdriver.Chrome(path)
     url = 'https://www.hackerrank.com/dashboard'
@@ -151,6 +153,7 @@ def get_problem_link_URL(index):
     """
     Gets the problem link for a given file
     """
+    print("Get link from URL for file" + str(index) + "...")
     url = 'https://www.hackerrank.com/domains/tutorials/30-days-of-code'
     browser = navigate_overview()
     browser.get(url)
