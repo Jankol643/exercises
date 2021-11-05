@@ -12,7 +12,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from problem_list import FOLDER
+from global_vars import FOLDER
 
 PATH = FOLDER + '/' + 'access_time.txt'
 TIMEOUT = 5  # in seconds

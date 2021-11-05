@@ -2,19 +2,10 @@ import os
 import subprocess
 import requests
 from datetime import datetime as DateTime  # for setting timeout
-from internet import open_browser  # for opening browser
 from file import get_code_files, get_problem_link
 import platform  # for determinating file creation date
-
-FOLDER = os.path.dirname(os.path.abspath(__file__))
-FOLDER = FOLDER.replace("\\", '/')
-PROBLEMS = FOLDER + '/problems/'
-DATAPATH = FOLDER + '/' + 'items.csv'
-FILE_LIST = FOLDER + '/' + 'file_list.txt'
-# if creation or last modification ('last modified') date should be set as solved date
-DATE = 'creation'
-DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-
+from internet import open_browser  # for opening browser
+from global_vars import PROBLEMS, DATE, DATETIME_FORMAT, DATAPATH
 
 def files_to_push():
     """

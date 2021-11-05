@@ -4,7 +4,7 @@ from pathlib import Path  # for sorting files
 import os
 from internet import get_problem_link_URL
 
-from problem_list import FOLDER, PROBLEMS
+from global_vars import FOLDER, PROBLEMS
 FILE_LIST = FOLDER + '/' + 'file_list.txt'
 
 def file_lines(file_path):
