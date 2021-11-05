@@ -5,7 +5,7 @@ import mechanize  # for opening browser
 # for random user agent when scraping website
 from random_user_agent.user_agent import UserAgent
 from bs4 import BeautifulSoup  # for getting HTML elements of website
-import re # for pattern matching of Selenium driver
+import re  # for pattern matching of Selenium driver
 # for logging into website
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -16,7 +16,9 @@ from problem_list import FOLDER
 
 PATH = FOLDER + '/' + 'access_time.txt'
 TIMEOUT = 5  # in seconds
-WEBDRIVER_REGEX = '\/webdriver\/.*\/chromedriver.exe' # regular expression for Selenium webdriver
+# regular expression for Selenium webdriver
+WEBDRIVER_REGEX = '\/webdriver\/.*\/chromedriver.exe'
+
 
 def set_random_user_agent():
     """
@@ -83,6 +85,7 @@ def open_browser(link):
     soup = BeautifulSoup(response.get_data())
     return soup
 
+
 def get_webdriver_path():
     """
     Gets the path to the web driver required by Selenium
@@ -98,23 +101,35 @@ def get_webdriver_path():
                 return entry
     raise FileNotFoundError
 
+
 def login():
     """
     Logs into Hackerrank.com
     """
 
     url = "https://www.hackerrank.com/auth/login"
-    usernameStr = 'putYourUsernameHere'
-    passwordStr = 'putYourPasswordHere'
+    result = list()
+
+    # get credentials from file
+    with open('.credentials.txt', 'r') as file:
+        for line in file:
+            result.append(line)
+    username_string = result[0]
+    username_string = username_string[8:]
+    password_string = result[1]
+    password_string = password_string[8:]
+
     path = get_webdriver_path()
     browser = webdriver.Chrome(path)
     browser.get((url))
-    username = browser.find_element_by_id('input-6') # username field
-    username.send_keys(usernameStr)
-    password = browser.find_element_by_id('input-7') # password field
-    password.send_keys(passwordStr)
-    login_button = browser.find_element_by_css_selector("button[data-analytics='LoginPassword']")
+    username = browser.find_element_by_id('input-6')  # username field
+    username.send_keys(username_string)
+    password = browser.find_element_by_id('input-7')  # password field
+    password.send_keys(password_string)
+    login_button = browser.find_element_by_css_selector(
+        "button[data-analytics='LoginPassword']")
     login_button.click()
+
 
 def logout():
     """
@@ -124,12 +139,42 @@ def logout():
     browser = webdriver.Chrome(path)
     url = 'https://www.hackerrank.com/dashboard'
     browser.get((url))
-    profile_dropdown = browser.find_element_by_css_selector("div[data-analytics='NavBarProfileDropdown']")
+    profile_dropdown = browser.find_element_by_css_selector(
+        "div[data-analytics='NavBarProfileDropdown']")
     profile_dropdown.click()
-    logout_button = browser.find_element_by_css_selector("button[data-analytics='NavBarProfileDropdownLogout']")
+    logout_button = browser.find_element_by_css_selector(
+        "button[data-analytics='NavBarProfileDropdownLogout']")
     logout_button.click()
 
-def get_problem_link_URL(file, index):
-    filename = os.path.splitext(file)[0]
-    filename = filename.split('/')[-1]
 
+def get_problem_link_URL(index):
+    """
+    Gets the problem link for a given file
+    """
+    url = 'https://www.hackerrank.com/domains/tutorials/30-days-of-code'
+    browser = navigate_overview()
+    browser.get(url)
+    divs = browser.find_element_by_class_name('challenges-list')
+    for div in divs:
+        if divs.index(div) == index:
+            div.click()
+            time.sleep(4)
+            link = browser.current_url
+            head, _, _ = link.partition('?')
+            link = head
+            success = True
+            return link, success
+    link = None
+    success = False
+    return link, success
+
+
+def navigate_overview():
+    folder = FOLDER.replace("\\", '/') + '/problems/'
+    list_subfolders_with_paths = [
+        f.name for f in os.scandir(folder) if f.is_dir()]
+    for dir in list_subfolders_with_paths:
+        if dir == '30 days of Code':
+            path = get_webdriver_path()
+            browser = webdriver.Chrome(path)
+            return browser
