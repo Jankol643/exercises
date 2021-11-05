@@ -11,7 +11,7 @@ def file_lines(file_path):
     """
     Counts the number of lines of a file using buffered count
     :string fname: path to file
-    :return noLines: number of lines in file
+    :returns: number of lines in file
     """
     if os.path.isfile(file_path):
         def _make_gen(reader):
@@ -108,6 +108,7 @@ def check_problem_links():
 def get_problem_link(file_path, index):
     """
     Gets the problem link from a HackerRank code file
+    :returns: link, success (link is None and success is false if link cannot be found)
     """
     lines = []
     file_lines = list()
