@@ -4,7 +4,7 @@ import requests
 from datetime import datetime as DateTime  # for setting timeout
 from internet import open_browser  # for opening browser
 from file import get_code_files, get_problem_link
-import time  # for determinating file creation time
+import platform  # for determinating file creation date
 
 FOLDER = os.path.dirname(os.path.abspath(__file__))
 FOLDER = FOLDER.replace("\\", '/')
@@ -13,6 +13,7 @@ DATAPATH = FOLDER + '/' + 'items.csv'
 FILE_LIST = FOLDER + '/' + 'file_list.txt'
 # if creation or last modification ('last modified') date should be set as solved date
 DATE = 'creation'
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
 def files_to_push():
@@ -95,6 +96,23 @@ def get_difficulty(soup):
     return difficulty
 
 
+def get_creation_date(filename):
+    """Gets the last created timestamp of the file."""
+    if platform.system() == 'Windows':
+        ts = os.stat(filename).st_ctime
+    elif platform.system() == 'Darwin':  # Mac OS
+        ts = os.stat(filename).st_birthtime
+    elif platform.system() == 'Linux':
+        # We're probably on Linux. No easy way to get creation dates here,
+        # so we'll settle for when its content was last modified.
+        ts = os.stat(filename).st_mtime  # linux
+    else:
+        # cannot determine os
+        ts = os.stat(filename).st_ctime
+    ts = DateTime.strptime(ts, DATETIME_FORMAT)
+    return ts
+
+
 def get_solved_date(file):
     """
     Get the date the HackerRank problem was solved given by the last commit date
@@ -102,10 +120,9 @@ def get_solved_date(file):
     :returns: solved date (int)
     """
     if DATE == 'creation':
-        (mode, ino, dev, nlink, uid, gid, size,
-         atime, mtime, ctime) = os.stat(file)
-        return str(time.ctime(mtime))
-    if DATE == 'last modified':
+        date = get_creation_date(file)
+        return str(date)
+    elif DATE == 'last modified':
         process = subprocess.Popen("git pull", stdout=subprocess.PIPE)
 
         command = 'git log --follow -p -- ' + "\"" + file + "\""
@@ -114,8 +131,10 @@ def get_solved_date(file):
         p = p.decode('utf-8')
         p = p.split('\n')[2]
         p = p[8:]
-        dtz = DateTime.strptime(p, "%a %b %d %H:%M:%S %Y %z")
-        return str(dtz)
+        dt = DateTime.strptime(p, DATETIME_FORMAT)
+        return str(dt)
+    else:
+        raise ValueError("DATE must be 'creation' or 'last modified'")
 
 
 def get_instructions(file):
