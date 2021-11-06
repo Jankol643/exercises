@@ -1,11 +1,44 @@
-import subprocess
-import re  # for sorting files
-from pathlib import Path  # for sorting files
 import os
-from internet import get_problem_link_URL
+import re  # for sorting files
+import subprocess
+import sys
+from pathlib import Path  # for sorting files
 
 from global_vars import FOLDER, PROBLEMS
+from internet import get_problem_link_URL
+
 FILE_LIST = FOLDER + '/' + 'file_list.txt'
+FILEUTIL_PATH = '.\\..\\..\\Misc\\'
+
+
+def import_module(file_path):
+    """
+    Imports the module specified in the relative path
+    :string file_path: relative path to file
+    """
+    final_path = ''
+    current_path = os.path.dirname(os.path.realpath(__file__))
+    splitted = current_path.split(os.path.sep)
+    no_points = file_path.count('..')
+    count = len(splitted) - no_points
+    splitted = splitted[:count]
+    splitted_filepath = file_path.split(os.path.sep)
+    filename = splitted_filepath[-1]
+    regexPattern = re.compile('(?<!\.)\.(?!\.)')  # matches single dot
+    no_points_filename = len(regexPattern.findall(filename))
+    no_single_points = len(regexPattern.findall(file_path))
+    count = no_points + no_single_points - no_points_filename
+    splitted_filepath = splitted_filepath[count:]
+    final_path_list = splitted + splitted_filepath
+    string = ''
+    for elem in final_path_list:
+        if final_path_list.index(elem) == len(final_path_list)-1:
+            string += elem
+        else:
+            string += elem + os.path.sep
+    final_path = string
+    sys.path.append(final_path)
+
 
 def file_lines(file_path):
     """
@@ -105,6 +138,25 @@ def check_problem_links():
     return links, errors
 
 
+def write_link_to_file(link, file_path):
+    """
+    Write link to file
+    """
+    file_lines = list()
+    line_no = 2 # line of file to write link to (default 2)
+    try:
+        with open(file_path, 'w') as f:
+            for line in f:
+                file_lines.append(line)
+            link = '#' + link
+            file_lines.insert(line_no - 1, link) # insert link into second line
+            for line in file_lines:
+                f.write(line + "\n")
+    except IOError:
+        raise IOError(
+            "IOError occured while writing gathered URL from website to file")
+
+
 def get_problem_link(file_path, index):
     """
     Gets the problem link from a HackerRank code file
@@ -118,21 +170,23 @@ def get_problem_link(file_path, index):
         if first_line == '#!/bin/python3':
             if not lines[1].startswith('#https://www.hackerrank.com/'):
                 link, success = get_problem_link_URL(index)
-                try:
-                    with open(file_path, 'w') as f:
-                        for line in f:
-                            file_lines.append(line)
-                            file_lines[:0] = [link]
-                        for line in file_lines:
-                            f.write(line + "\n")
-                except IOError:
-                    raise IOError("IOError occured while writing gathered URL from website to file")
+                if success is True:
+                    write_link_to_file(link, file_path)
                 return link, success
-        else:  # first line is link
-            link = first_line
-        link = link[1:]  # remove comment sign ('#') from link
-        success = True
-        return link, success
+        else:  # first line is not a shebang
+            import_module(FILEUTIL_PATH)
+            import fileUtil
+            fileUtil.write_shebang(file_path, 3)
+            if lines[1].startswith('#https://www.hackerrank.com/'): # second line is a shebang
+                link = lines[1]
+                link = link[1:]  # remove comment sign ('#') from link
+                success = True
+                return link, success
+            else:  # second line of file contains no link
+                link, success = get_problem_link_URL(file_path)
+                if success is True:
+                    write_link_to_file(link, file_path)
+                return link, success
     else:  # file has only one line
         link = None
         success = False
