@@ -5,17 +5,16 @@ from datetime import datetime as DateTime  # for setting timeout
 from file import get_code_files, get_problem_link
 import platform  # for determinating file creation date
 from internet import open_browser  # for opening browser
+import git # for checking if there are uncommitted files
 from global_vars import PROBLEMS, DATE, DATETIME_FORMAT, DATAPATH
 
 def files_to_push():
     """
     Checks if there are any uncommited files since last commit and aborts program
     """
-    command = 'git status'
-    p = subprocess.check_output(command, cwd=PROBLEMS, shell=True)
-    p = p.decode('utf-8')
-    nlines = p.count('\n')
-    if nlines > 4:  # output with no uncommitted files is 4
+    repo = git.Repo('.', search_parent_directories=True)
+    changedFiles = [ item.a_path for item in repo.index.diff(None) ]
+    if len(changedFiles) > 1:
         raise RuntimeError(
             "There are uncommited files in directory. Commit all files and try again.")
 
@@ -44,7 +43,7 @@ def process_problems():
         index = file_paths.index(file)
         print("Converting file " + str(index) +
               " of " + str(length) + " files...")
-        link, success = get_problem_link(file)
+        link, success = get_problem_link(file, index)
         if success is False:
             break
         soup = open_browser(file)
