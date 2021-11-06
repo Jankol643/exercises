@@ -112,8 +112,10 @@ def get_code_files():
         result = sort_logically(result)
         with open(FILE_LIST, 'w') as f:
             for res in result:
-                f.write(res + '\n')
-
+                if result.index(res) == len(result) - 1:
+                    f.write(res)
+                else:
+                    f.write(res + '\n')
     return result
 
 
