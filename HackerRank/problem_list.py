@@ -3,13 +3,22 @@ import subprocess
 from datetime import datetime as DateTime
 from file import get_file_difficulty
 from global_vars import DIFFICULTY_PROMPT  # for getting solved date
-from file import get_code_files, get_write_problem_link, correct_file_difficulty, write_string_to_file
+from file import get_code_files, get_write_problem_link, correct_file_difficulty, write_string_to_file, DIFFICULTY_LINE_NUMBER
 from internet import get_HTML_path, get_domains
 import platform  # for determinating file creation date
 import git  # for checking if there are uncommitted files
 from global_vars import PROBLEMS, DATE, DATETIME_FORMAT, DATAPATH
-from file import DIFFICULTY_LINE_NUMBER
 from bs4 import BeautifulSoup
+import time # for calculating execution time
+
+PROCESS_PROBLEM_TIME = 0
+GET_CODE_FILES_TIMES = 0
+GET_WRITE_PROBLEM_LINK_TIMES = list()
+GET_DOMAINS_TIMES = list()
+GET_DIFFICULTY_TIMES = list()
+GET_SOLVED_DATE_TIMES = list()
+GET_INSTRUCTIONS_TIMES = list()
+WRITE_TO_CSV_TIME = 0
 
 
 def files_to_push():
@@ -44,6 +53,7 @@ def process_problems():
     """
     Converts all problems to objects
     """
+    process_problem_time_start = time.perf_counter_ns()
     errors = list()
     problem_list = list()
     file_paths = get_code_files()
@@ -52,7 +62,11 @@ def process_problems():
     for file in file_paths:
         index = file_paths.index(file)
         print("Converting file " + str(index) + " of " + str(length))
+        get_write_problem_link_time_start = time.perf_counter_ns()
         link, success = get_write_problem_link(file, index)
+        get_write_problem_link_time_end = time.perf_counter_ns()
+        total_time = get_write_problem_link_time_end - get_write_problem_link_time_start
+        GET_WRITE_PROBLEM_LINK_TIMES.append(total_time)
         if success is False:
             errors.append(file)
         splitted_path = file.split(os.path.sep)
@@ -75,6 +89,8 @@ def process_problems():
         print("Errors occured in following files: ")
         for item in errors:
             print(item)
+    process_problem_time_end = time.perf_counter_ns()
+    PROCESS_PROBLEM_TIME = process_problem_time_end - process_problem_time_start
     return problem_list
 
 
@@ -83,6 +99,7 @@ def get_difficulty(file, index, soup):
     Gets the difficulty of a HackerRank problem
     :returns: difficulty (string)
     """
+    get_difficulty_start = time.perf_counter_ns()
     print("Get difficulty for " + file + "...")
     found = False
     if get_file_difficulty(file) is not None:
@@ -112,6 +129,9 @@ def get_difficulty(file, index, soup):
         html_difficulty = first_child.text
         difficulty = DIFFICULTY_PROMPT + html_difficulty + '\n'
         write_string_to_file(file, difficulty, DIFFICULTY_LINE_NUMBER)
+        get_difficulty_end = time.perf_counter_ns()
+        time_spent = get_difficulty_end - get_difficulty_start
+        GET_DIFFICULTY_TIMES.append(time_spent)
         return difficulty
 
 
@@ -140,11 +160,15 @@ def get_solved_date(file):
     :string file: file to calculate solved date of
     :returns: solved date (int)
     """
+    get_solved_date_start = time.perf_counter_ns()
     print("Get solved date for file " + file)
     if DATE not in ['creation', 'last modification', 'first commit']:
         raise ValueError()
     if DATE == 'creation':
         date = get_creation_date(file)
+        get_solved_date_end = time.perf_counter_ns()
+        time_spent = get_solved_date_end - get_solved_date_start
+        GET_SOLVED_DATE_TIMES.append(time_spent)
         return str(date)
     elif DATE == 'last modified':
         process = subprocess.Popen("git pull", stdout=subprocess.PIPE)
@@ -156,6 +180,9 @@ def get_solved_date(file):
         p = p.split('\n')[2]
         p = p[8:]
         dt = DateTime.strptime(p, DATETIME_FORMAT)
+        get_solved_date_end = time.perf_counter_ns()
+        time_spent = get_solved_date_end - get_solved_date_start
+        GET_SOLVED_DATE_TIMES.append(time_spent)
         return str(dt)
     elif DATE == 'first commit':
         command = 'git log --diff-filter=A --follow --format=%aI -1 -p -- ' + "\"" + file + "\""
@@ -170,6 +197,9 @@ def get_solved_date(file):
                 date = date[0:i] + ' ' + date[i + 1:length-5] # replace T with space and cut timezone
                 break
         date_obj = DateTime.strptime(date, DATETIME_FORMAT)
+        get_solved_date_end = time.perf_counter_ns()
+        time_spent = get_solved_date_end - get_solved_date_start
+        GET_SOLVED_DATE_TIMES.append(time_spent)
         return str(date_obj)
 
 def get_instructions(file):
@@ -178,6 +208,7 @@ def get_instructions(file):
     :string file: path to problem file
     :returns: path to instruction file
     """
+    get_instructions_start = time.perf_counter_ns()
     print("Get instruction file for " + file + "...")
     file_name = file.split(os.path.sep)[-1]
     file_name_no_ext = os.path.splitext(file_name)[0]
@@ -186,8 +217,14 @@ def get_instructions(file):
     print(instruction_path)
     full_path = PROBLEMS + instruction_path
     if os.path.exists(full_path):
+        get_instructions_end = time.perf_counter_ns()
+        time_spent = get_instructions_end - get_instructions_start
+        GET_INSTRUCTIONS_TIMES.append(time_spent)
         return instruction_path
     else:
+        get_instructions_end = time.perf_counter_ns()
+        time_spent = get_instructions_end - get_instructions_start
+        GET_INSTRUCTIONS_TIMES.append(time_spent)
         return None
 
 
@@ -197,6 +234,7 @@ def write_to_csv(problem_list):
     :list problem_list: list of HackerRankProblem objects
     """
     print("Writing problems to file...")
+    write_to_csv_time_start = time.perf_counter_ns()
     try:
         with open(DATAPATH, 'w') as f:
             # write column names to file
@@ -217,16 +255,58 @@ def write_to_csv(problem_list):
                     result.append(str(getattr(item, key)))
                 string = ','.join(result)
                 f.write(string + '\n')
+            write_to_csv_time_end = time.perf_counter_ns()
+            WRITE_TO_CSV_TIME = write_to_csv_time_end - write_to_csv_time_start
     except IOError:
         print('IOError occured while accessing', DATAPATH)
     except Exception:
         raise Exception()
 
 
+def print_statistics(total_time):
+    nano = 1000000000
+    print("Execution time of script:", total_time/nano, "s")
+    file_list = get_code_files()
+    no_files = len(file_list)
+    time_per_file = total_time / no_files
+    print("Execution time per file", time_per_file, "ns")
+    process_problem_time_per_file = PROCESS_PROBLEM_TIME / no_files
+    print("Process problem time per file:", process_problem_time_per_file, "ns")
+    total_code_files_time = GET_CODE_FILES_TIMES
+    avg_get_code_files_time = total_code_files_time / no_files
+    print("Average time to get code file:", avg_get_code_files_time, "ns")
+    total_get_write_problem_link_time = 0
+    for time in GET_WRITE_PROBLEM_LINK_TIMES:
+        total_get_write_problem_link_time += time
+    avg_get_write_problem_link_time = total_get_write_problem_link_time / no_files
+    print("Average time to get or write problem link to file:", avg_get_write_problem_link_time, "ns")
+    total_get_difficulty_time = 0
+    for time in GET_DIFFICULTY_TIMES:
+        total_get_difficulty_time += time
+    avg_get_difficulty_time = total_get_difficulty_time / no_files
+    print("Average time to get difficulty:", avg_get_difficulty_time, "ns")
+    total_get_solved_date_time = 0
+    for time in GET_SOLVED_DATE_TIMES:
+        total_get_solved_date_time += time
+    avg_get_solved_date_time = total_get_solved_date_time / no_files
+    print("Average time to get solved date time:", avg_get_solved_date_time, "ns")
+    total_get_instructions_time = 0
+    for time in GET_INSTRUCTIONS_TIMES:
+        total_get_instructions_time += time
+    avg_get_instructions_time = total_get_instructions_time / no_files
+    print("Average time to get instructions:", avg_get_instructions_time, "ns")
+    total_csv_time = WRITE_TO_CSV_TIME
+    print("Total time to write to csv file:", total_csv_time/nano, "s")
+    avg_csv_time = total_csv_time / no_files
+    print("Average time to write to csv file:", avg_csv_time, "ns")
+
 def main():
+    total_time_start = time.perf_counter_ns()
     # files_to_push()
     problem_list = process_problems()
     write_to_csv(problem_list)
-
+    total_time_end = time.perf_counter_ns()
+    total_time = total_time_end - total_time_start
+    print_statistics(total_time)
 
 main()
