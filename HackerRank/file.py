@@ -175,3 +175,19 @@ def get_file_difficulty(file):
         file_difficulty = difficulty[14:]
         return file_difficulty
     return None
+
+
+def correct_file_difficulty(file, correct_difficulty):
+    """
+    Corrects the difficulty in a given file
+    :string file: path to file
+    :string correct_difficulty: difficulty to write to file
+    """
+    import_module(MISC_PATH)
+    import fileUtil
+    lines = fileUtil.read_file_to_list(file, True)
+    if lines[DIFFICULTY_LINE_NUMBER - 1].startswith(DIFFICULTY_PROMPT):
+        lines[DIFFICULTY_LINE_NUMBER - 1] = DIFFICULTY_PROMPT + correct_difficulty
+    with open(file, 'w') as f:
+        for line in lines:
+            f.write(line + '\n')
