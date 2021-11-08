@@ -9,8 +9,8 @@ from internet import get_problem_link_HTML
 
 FILE_LIST = FOLDER + '/' + 'file_list.txt'
 MISC_PATH = '.\\..\\..\\Misc\\'
-LINK_LINE_NUMBER = 2 # link should be written on second line of file
-DIFFICULTY_LINE_NUMBER = 3 # difficulty should be written on third line of file
+LINK_LINE_NUMBER = 2  # link should be written on second line of file
+DIFFICULTY_LINE_NUMBER = 3  # difficulty should be written on third line of file
 
 
 def import_module(file_path):
@@ -78,8 +78,29 @@ def get_code_files():
         result = masterUtil.sort_logically(result)
         with open(FILE_LIST, 'w') as f:
             for res in result:
-                    f.write(res)
+                f.write(res)
     return result
+
+
+def write_string_to_file(file_path, string, line_no):
+    """
+    Write string to file
+    :string file_path: file to write to
+    :string string: string to write
+    :int line_no: line number to write to
+    """
+    import_module(MISC_PATH)
+    import fileUtil
+    file_lines = fileUtil.read_file_to_list(file_path, True)
+
+    if file_lines[line_no - 1] == '':
+        file_lines[line_no - 1] = string
+    else:
+        # insert string into desired line of file
+        file_lines.insert(line_no - 1, string)
+    with open(file_path, 'w') as f:
+        for line in file_lines:
+            f.write(line + '\n')
 
 
 def get_write_problem_link(file_path, index):
@@ -99,9 +120,10 @@ def get_write_problem_link(file_path, index):
                 link, success = get_problem_link_HTML(index, file_path)
                 if success is True:
                     write_link = '#' + link
-                    write_string_to_file(file_path, write_link, LINK_LINE_NUMBER)
+                    write_string_to_file(
+                        file_path, write_link, LINK_LINE_NUMBER)
                 return link, success
-            else: # first line is shebang, second line is link
+            else:  # first line is shebang, second line is link
                 link = lines[1]
                 success = True
                 return link, success
@@ -109,7 +131,8 @@ def get_write_problem_link(file_path, index):
             import_module(MISC_PATH)
             import fileUtil
             fileUtil.write_shebang(file_path, 3)
-            if lines[1].startswith('#https://www.hackerrank.com/'): # second line is a link
+            # second line is a link
+            if lines[1].startswith('#https://www.hackerrank.com/'):
                 link = lines[1]
                 link = link[1:]  # remove comment sign ('#') from link
                 success = True
@@ -118,10 +141,10 @@ def get_write_problem_link(file_path, index):
                 link, success = get_problem_link_HTML(index, file_path)
                 if success is True:
                     write_link = '#' + link
-                    write_string_to_file(file_path, write_link, LINK_LINE_NUMBER)
+                    write_string_to_file(
+                        file_path, write_link, LINK_LINE_NUMBER)
                 return link, success
     else:  # file has only one line
         link = None
         success = False
         return link, success
-
