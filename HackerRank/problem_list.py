@@ -7,18 +7,9 @@ from file import get_code_files, get_write_problem_link, correct_file_difficulty
 from internet import get_HTML_path, get_domains
 import platform  # for determinating file creation date
 import git  # for checking if there are uncommitted files
-from global_vars import PROBLEMS, DATE, DATETIME_FORMAT, DATAPATH
+from global_vars import PROBLEMS, DATE, DATETIME_FORMAT, DATAPATH, PROCESS_PROBLEM_TIME, GET_CODE_FILES_TIMES, GET_WRITE_PROBLEM_LINK_TIMES, GET_DOMAINS_TIMES, GET_DIFFICULTY_TIMES, GET_SOLVED_DATE_TIMES, GET_INSTRUCTIONS_TIMES, WRITE_TO_CSV_TIME
 from bs4 import BeautifulSoup
-import time # for calculating execution time
-
-PROCESS_PROBLEM_TIME = 0
-GET_CODE_FILES_TIMES = 0
-GET_WRITE_PROBLEM_LINK_TIMES = list()
-GET_DOMAINS_TIMES = list()
-GET_DIFFICULTY_TIMES = list()
-GET_SOLVED_DATE_TIMES = list()
-GET_INSTRUCTIONS_TIMES = list()
-WRITE_TO_CSV_TIME = 0
+import time  # for calculating execution time
 
 
 def files_to_push():
@@ -119,10 +110,10 @@ def get_difficulty(file, index, soup):
         int_html_difficulty = difficulty_dict.get(html_difficulty)
         if int_html_difficulty != int_file_difficulty:
             correct_file_difficulty(file, int_html_difficulty)
-        difficulty_dict_reversed = {y:x for x,y in difficulty_dict.items()}
+        difficulty_dict_reversed = {y: x for x, y in difficulty_dict.items()}
         master_difficulty = difficulty_dict_reversed.get(int_html_difficulty)
         return master_difficulty
-    else: # difficulty not found in file
+    else:  # difficulty not found in file
         # get difficulty from HTML only
         div = soup.find_all('div', attrs={'class': 'card-details'})[index]
         first_child = next(div.children, None)
@@ -190,17 +181,19 @@ def get_solved_date(file):
         date = date.decode('utf-8')
         date = date.split('\n')[0]
         length = len(date)
-        date = date[0:-3] + date[-2:] # delete colon between timezone
+        date = date[0:-3] + date[-2:]  # delete colon between timezone
         length = len(date)
         for i in range(length):
             if(date[i] == 'T'):
-                date = date[0:i] + ' ' + date[i + 1:length-5] # replace T with space and cut timezone
+                # replace T with space and cut timezone
+                date = date[0:i] + ' ' + date[i + 1:length-5]
                 break
         date_obj = DateTime.strptime(date, DATETIME_FORMAT)
         get_solved_date_end = time.perf_counter_ns()
         time_spent = get_solved_date_end - get_solved_date_start
         GET_SOLVED_DATE_TIMES.append(time_spent)
         return str(date_obj)
+
 
 def get_instructions(file):
     """
@@ -239,7 +232,8 @@ def write_to_csv(problem_list):
         with open(DATAPATH, 'w') as f:
             # write column names to file
             result = list()
-            dummy_obj = HackerRankProblem(0, 'http', 'domain', 'test', 'test', 'Easy', '14.3.21', 'link')
+            dummy_obj = HackerRankProblem(
+                0, 'http', 'domain', 'test', 'test', 'Easy', '14.3.21', 'link')
             for key in dummy_obj.__dict__:
                 result.append(key)
             string = ','.join(result)
@@ -271,7 +265,8 @@ def print_statistics(total_time):
     time_per_file = total_time / no_files
     print("Execution time per file", time_per_file, "ns")
     process_problem_time_per_file = PROCESS_PROBLEM_TIME / no_files
-    print("Process problem time per file:", process_problem_time_per_file, "ns")
+    print("Process problem time per file:",
+          process_problem_time_per_file, "ns")
     total_code_files_time = GET_CODE_FILES_TIMES
     avg_get_code_files_time = total_code_files_time / no_files
     print("Average time to get code file:", avg_get_code_files_time, "ns")
@@ -279,7 +274,13 @@ def print_statistics(total_time):
     for time in GET_WRITE_PROBLEM_LINK_TIMES:
         total_get_write_problem_link_time += time
     avg_get_write_problem_link_time = total_get_write_problem_link_time / no_files
-    print("Average time to get or write problem link to file:", avg_get_write_problem_link_time, "ns")
+    print("Average time to get or write problem link to file:",
+          avg_get_write_problem_link_time, "ns")
+    total_get_domains_time = 0
+    for time in GET_DOMAINS_TIMES:
+        total_get_domains_time += time
+    avg_get_domains_time = total_get_domains_time / no_files
+    print("Average time to get domains:", avg_get_domains_time, "ns")
     total_get_difficulty_time = 0
     for time in GET_DIFFICULTY_TIMES:
         total_get_difficulty_time += time
@@ -289,7 +290,8 @@ def print_statistics(total_time):
     for time in GET_SOLVED_DATE_TIMES:
         total_get_solved_date_time += time
     avg_get_solved_date_time = total_get_solved_date_time / no_files
-    print("Average time to get solved date time:", avg_get_solved_date_time, "ns")
+    print("Average time to get solved date time:",
+          avg_get_solved_date_time, "ns")
     total_get_instructions_time = 0
     for time in GET_INSTRUCTIONS_TIMES:
         total_get_instructions_time += time
@@ -300,6 +302,7 @@ def print_statistics(total_time):
     avg_csv_time = total_csv_time / no_files
     print("Average time to write to csv file:", avg_csv_time, "ns")
 
+
 def main():
     total_time_start = time.perf_counter_ns()
     # files_to_push()
@@ -308,5 +311,6 @@ def main():
     total_time_end = time.perf_counter_ns()
     total_time = total_time_end - total_time_start
     print_statistics(total_time)
+
 
 main()
