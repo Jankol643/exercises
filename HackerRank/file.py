@@ -152,3 +152,26 @@ def get_write_problem_link(file_path, index):
         link = None
         success = False
         return link, success
+
+
+def get_file_difficulty(file):
+    """
+    Gets the difficulty of a HackerRank problem from file
+    :returns: difficulty (string) or None
+    """
+    file_lines = list()
+    found = False
+    # search for difficulty in file
+    try:
+        with open(file, 'r') as f:
+            for line in f:
+                file_lines.append(line)
+    except IOError:
+        return None
+    difficulty = file_lines[DIFFICULTY_LINE_NUMBER - 1]
+    if difficulty.startswith(DIFFICULTY_PROMPT):
+        found = True
+        difficulty = difficulty.rstrip('\n')
+        file_difficulty = difficulty[14:]
+        return file_difficulty
+    return None
