@@ -7,9 +7,17 @@ from file import get_code_files, get_write_problem_link, correct_file_difficulty
 from internet import get_HTML_path, get_domains
 import platform  # for determinating file creation date
 import git  # for checking if there are uncommitted files
-from global_vars import PROBLEMS, DATE, DATETIME_FORMAT, DATAPATH, PROCESS_PROBLEM_TIME, GET_CODE_FILES_TIMES, GET_WRITE_PROBLEM_LINK_TIMES, GET_DOMAINS_TIMES, GET_DIFFICULTY_TIMES, GET_SOLVED_DATE_TIMES, GET_INSTRUCTIONS_TIMES, WRITE_TO_CSV_TIME
+from global_vars import PROBLEMS, DATE, DATETIME_FORMAT, DATAPATH
 from bs4 import BeautifulSoup
 import time  # for calculating execution time
+
+PROCESS_PROBLEM_TIME = 0
+GET_WRITE_PROBLEM_LINK_TIMES = list()
+GET_DOMAINS_TIMES = list()
+GET_DIFFICULTY_TIMES = list()
+GET_SOLVED_DATE_TIMES = list()
+GET_INSTRUCTIONS_TIMES = list()
+WRITE_TO_CSV_TIME = 0
 
 
 def files_to_push():
@@ -68,7 +76,11 @@ def process_problems():
             # search for link
             open_html_file = open(html_file_path, 'r')
             soup = BeautifulSoup(open_html_file, 'html.parser')
+            get_domains_times_start = time.perf_counter_ns()
             domain, subdomain, subsubdomain = get_domains(file, soup)
+            get_domains_times_end = time.perf_counter_ns()
+            time_spent = get_domains_times_end - get_domains_times_start
+            GET_DOMAINS_TIMES.append(time_spent)
             difficulty = get_difficulty(file, index, soup)
             solved_date = get_solved_date(file)
             instruction = get_instructions(file)
@@ -267,9 +279,6 @@ def print_statistics(total_time):
     process_problem_time_per_file = PROCESS_PROBLEM_TIME / no_files
     print("Process problem time per file:",
           process_problem_time_per_file, "ns")
-    total_code_files_time = GET_CODE_FILES_TIMES
-    avg_get_code_files_time = total_code_files_time / no_files
-    print("Average time to get code file:", avg_get_code_files_time, "ns")
     total_get_write_problem_link_time = 0
     for time in GET_WRITE_PROBLEM_LINK_TIMES:
         total_get_write_problem_link_time += time

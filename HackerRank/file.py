@@ -6,7 +6,6 @@ import time
 
 from global_vars import FOLDER, PROBLEMS, DIFFICULTY_PROMPT
 from internet import get_problem_link_HTML
-from problem_list import GET_CODE_FILES_TIMES
 
 FILE_LIST = FOLDER + '/' + 'file_list.txt'
 MISC_PATH = '.\\..\\..\\Misc\\'
@@ -48,7 +47,6 @@ def get_code_files():
     Gets file paths of code files in all subdirectories
     :returns: list of file paths
     """
-    get_code_files_time_start = time.perf_counter()
     print("Get file paths...")
     process = subprocess.Popen("git pull", stdout=subprocess.PIPE)
     result = list()
@@ -81,8 +79,6 @@ def get_code_files():
         with open(FILE_LIST, 'w') as f:
             for res in result:
                 f.write(res)
-    get_code_files_time_end = time.perf_counter()
-    GET_CODE_FILES_TIMES = get_code_files_time_end - get_code_files_time_start
     return result
 
 
