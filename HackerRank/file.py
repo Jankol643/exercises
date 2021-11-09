@@ -47,7 +47,6 @@ def get_code_files():
     Gets file paths of code files in all subdirectories
     :returns: list of file paths
     """
-    print("Get file paths...")
     process = subprocess.Popen("git pull", stdout=subprocess.PIPE)
     result = list()
     no_files = 0
@@ -76,9 +75,14 @@ def get_code_files():
                         result.append(entry)
         import masterUtil
         result = masterUtil.sort_logically(result)
+        # ensure that java file with no index in filename is correctly inserted
+        java_file_path = result[-1]
+        result.remove(java_file_path)
+        result.insert(21, java_file_path)
+
         with open(FILE_LIST, 'w') as f:
             for res in result:
-                f.write(res)
+                f.write(res + '\n')
     return result
 
 
@@ -149,6 +153,29 @@ def get_write_problem_link(file_path, index):
         success = False
         return link, success
 
+def delete_excess_difficulties(file_lines, file):
+    found = False
+    changed = False
+    for line in file_lines:
+        if line.startswith(DIFFICULTY_PROMPT):
+            if found is True:
+                changed = True
+                file_lines.remove(line)
+                continue
+            found = True
+            index = file_lines.index(line)
+    # difficulty is on wrong line
+    if not file_lines[DIFFICULTY_LINE_NUMBER - 1].startswith(DIFFICULTY_PROMPT):
+        changed = True
+        file_lines[DIFFICULTY_LINE_NUMBER - 1] = file_lines[index]
+        file_lines.remove(file_lines[index])
+    # write changes to file
+    if changed is True:
+        with open(file, 'w') as f:
+            for line in file_lines:
+                f.write(line)
+    return file_lines
+
 
 def get_file_difficulty(file):
     """
@@ -156,7 +183,6 @@ def get_file_difficulty(file):
     :returns: difficulty (string) or None
     """
     file_lines = list()
-    found = False
     # search for difficulty in file
     try:
         with open(file, 'r') as f:
@@ -164,9 +190,9 @@ def get_file_difficulty(file):
                 file_lines.append(line)
     except IOError:
         return None
+    file_lines = delete_excess_difficulties(file_lines, file)
     difficulty = file_lines[DIFFICULTY_LINE_NUMBER - 1]
     if difficulty.startswith(DIFFICULTY_PROMPT):
-        found = True
         difficulty = difficulty.rstrip('\n')
         file_difficulty = difficulty[14:]
         return file_difficulty
@@ -183,7 +209,7 @@ def correct_file_difficulty(file, correct_difficulty):
     import fileUtil
     lines = fileUtil.read_file_to_list(file, True)
     if lines[DIFFICULTY_LINE_NUMBER - 1].startswith(DIFFICULTY_PROMPT):
-        lines[DIFFICULTY_LINE_NUMBER - 1] = DIFFICULTY_PROMPT + correct_difficulty
+        lines[DIFFICULTY_LINE_NUMBER - 1] = DIFFICULTY_PROMPT + str(correct_difficulty)
     with open(file, 'w') as f:
         for line in lines:
             f.write(line + '\n')
