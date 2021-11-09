@@ -11,13 +11,12 @@ from global_vars import PROBLEMS, DATE, DATETIME_FORMAT, DATAPATH
 from bs4 import BeautifulSoup
 import time  # for calculating execution time
 
-PROCESS_PROBLEM_TIME = 0
+
 GET_WRITE_PROBLEM_LINK_TIMES = list()
 GET_DOMAINS_TIMES = list()
 GET_DIFFICULTY_TIMES = list()
 GET_SOLVED_DATE_TIMES = list()
 GET_INSTRUCTIONS_TIMES = list()
-WRITE_TO_CSV_TIME = 0
 
 
 def files_to_push():
@@ -52,7 +51,6 @@ def process_problems():
     """
     Converts all problems to objects
     """
-    process_problem_time_start = time.perf_counter_ns()
     errors = list()
     problem_list = list()
     file_paths = get_code_files()
@@ -92,8 +90,6 @@ def process_problems():
         print("Errors occured in following files: ")
         for item in errors:
             print(item)
-    process_problem_time_end = time.perf_counter_ns()
-    PROCESS_PROBLEM_TIME = process_problem_time_end - process_problem_time_start
     return problem_list
 
 
@@ -105,37 +101,31 @@ def get_difficulty(file, index, soup):
     get_difficulty_start = time.perf_counter_ns()
     print("Get difficulty for " + file + "...")
     found = False
-    if get_file_difficulty(file) is not None:
+    file_difficulty = get_file_difficulty(file)
+    if file_difficulty is not None:
         found = True
-        file_difficulty = get_file_difficulty(file)
     # search for difficulty in HTML file
     if found is True:
         div = soup.find_all('div', attrs={'class': 'card-details'})[index]
         first_child = next(div.children, None)
-        html_difficulty = first_child.text()
-        difficulty_dict = {
-            'Easy': 1,
-            'Medium': 2,
-            'Hard': 3
-        }
-        int_file_difficulty = difficulty_dict.get(file_difficulty)
-        int_html_difficulty = difficulty_dict.get(html_difficulty)
-        if int_html_difficulty != int_file_difficulty:
-            correct_file_difficulty(file, int_html_difficulty)
-        difficulty_dict_reversed = {y: x for x, y in difficulty_dict.items()}
-        master_difficulty = difficulty_dict_reversed.get(int_html_difficulty)
-        return master_difficulty
+        html_difficulty = first_child.text.strip()
+        if html_difficulty != file_difficulty:
+            correct_file_difficulty(file, html_difficulty)
+        get_difficulty_end = time.perf_counter_ns()
+        time_spent = get_difficulty_end - get_difficulty_start
+        GET_DIFFICULTY_TIMES.append(time_spent)
+        return html_difficulty
     else:  # difficulty not found in file
         # get difficulty from HTML only
         div = soup.find_all('div', attrs={'class': 'card-details'})[index]
         first_child = next(div.children, None)
-        html_difficulty = first_child.text
-        difficulty = DIFFICULTY_PROMPT + html_difficulty + '\n'
-        write_string_to_file(file, difficulty, DIFFICULTY_LINE_NUMBER)
+        html_difficulty = first_child.text.strip()
+        write_difficulty = DIFFICULTY_PROMPT + html_difficulty + '\n'
+        write_string_to_file(file, write_difficulty, DIFFICULTY_LINE_NUMBER)
         get_difficulty_end = time.perf_counter_ns()
         time_spent = get_difficulty_end - get_difficulty_start
         GET_DIFFICULTY_TIMES.append(time_spent)
-        return difficulty
+        return html_difficulty
 
 
 def get_creation_date(filename):
@@ -217,10 +207,16 @@ def get_instructions(file):
     print("Get instruction file for " + file + "...")
     file_name = file.split(os.path.sep)[-1]
     file_name_no_ext = os.path.splitext(file_name)[0]
-    instruction_path = "." + os.path.sep + "instructions" + \
-        os.path.sep + file_name_no_ext + ".pdf"
-    print(instruction_path)
-    full_path = PROBLEMS + instruction_path
+    # link java file to correct instruction
+    if file_name == 'Generics.java':
+        instruction_path = "instructions" + os.path.sep + \
+            'Day 21 - ' + file_name_no_ext + ".pdf"
+        get_instructions_end = time.perf_counter_ns()
+        time_spent = get_instructions_end - get_instructions_start
+        GET_INSTRUCTIONS_TIMES.append(time_spent)
+        return instruction_path
+    instruction_path = "instructions" + os.path.sep + file_name_no_ext + ".pdf"
+    full_path = PROBLEMS + '30 days of Code' + os.path.sep + instruction_path
     if os.path.exists(full_path):
         get_instructions_end = time.perf_counter_ns()
         time_spent = get_instructions_end - get_instructions_start
@@ -239,7 +235,6 @@ def write_to_csv(problem_list):
     :list problem_list: list of HackerRankProblem objects
     """
     print("Writing problems to file...")
-    write_to_csv_time_start = time.perf_counter_ns()
     try:
         with open(DATAPATH, 'w') as f:
             # write column names to file
@@ -255,14 +250,11 @@ def write_to_csv(problem_list):
             for item in problem_list:
                 result = list()
                 index = problem_list.index(item)
-                print("Writing problem " + str(index) + " to file...")
                 string = ''
                 for key in item.__dict__:
                     result.append(str(getattr(item, key)))
                 string = ','.join(result)
                 f.write(string + '\n')
-            write_to_csv_time_end = time.perf_counter_ns()
-            WRITE_TO_CSV_TIME = write_to_csv_time_end - write_to_csv_time_start
     except IOError:
         print('IOError occured while accessing', DATAPATH)
     except Exception:
@@ -271,45 +263,46 @@ def write_to_csv(problem_list):
 
 def print_statistics(total_time):
     nano = 1000000000
-    print("Execution time of script:", total_time/nano, "s")
+    precision = 3
+    print('--------------------------------------------------------------------------------')
+    execution_time_script = round(total_time / nano, precision)
+    print("Execution time of script:", execution_time_script, "s")
     file_list = get_code_files()
     no_files = len(file_list)
-    time_per_file = total_time / no_files
-    print("Execution time per file", time_per_file, "ns")
-    process_problem_time_per_file = PROCESS_PROBLEM_TIME / no_files
-    print("Process problem time per file:",
-          process_problem_time_per_file, "ns")
+    time_per_file = round(total_time / no_files / nano, precision)
+    print("Execution time per file", time_per_file, "s")
     total_get_write_problem_link_time = 0
     for time in GET_WRITE_PROBLEM_LINK_TIMES:
         total_get_write_problem_link_time += time
-    avg_get_write_problem_link_time = total_get_write_problem_link_time / no_files
+    avg_get_write_problem_link_time = round(
+        total_get_write_problem_link_time / no_files / nano, precision)
     print("Average time to get or write problem link to file:",
-          avg_get_write_problem_link_time, "ns")
+          avg_get_write_problem_link_time, "s")
     total_get_domains_time = 0
     for time in GET_DOMAINS_TIMES:
         total_get_domains_time += time
-    avg_get_domains_time = total_get_domains_time / no_files
-    print("Average time to get domains:", avg_get_domains_time, "ns")
+    avg_get_domains_time = round(
+        total_get_domains_time / no_files / nano, precision)
+    print("Average time to get domains:", avg_get_domains_time, "s")
     total_get_difficulty_time = 0
     for time in GET_DIFFICULTY_TIMES:
         total_get_difficulty_time += time
-    avg_get_difficulty_time = total_get_difficulty_time / no_files
-    print("Average time to get difficulty:", avg_get_difficulty_time, "ns")
+    avg_get_difficulty_time = round(
+        total_get_difficulty_time / no_files / nano, precision)
+    print("Average time to get difficulty:", avg_get_difficulty_time, "s")
     total_get_solved_date_time = 0
     for time in GET_SOLVED_DATE_TIMES:
         total_get_solved_date_time += time
-    avg_get_solved_date_time = total_get_solved_date_time / no_files
+    avg_get_solved_date_time = round(
+        total_get_solved_date_time / no_files / nano, precision)
     print("Average time to get solved date time:",
-          avg_get_solved_date_time, "ns")
+          avg_get_solved_date_time, "s")
     total_get_instructions_time = 0
     for time in GET_INSTRUCTIONS_TIMES:
         total_get_instructions_time += time
-    avg_get_instructions_time = total_get_instructions_time / no_files
-    print("Average time to get instructions:", avg_get_instructions_time, "ns")
-    total_csv_time = WRITE_TO_CSV_TIME
-    print("Total time to write to csv file:", total_csv_time/nano, "s")
-    avg_csv_time = total_csv_time / no_files
-    print("Average time to write to csv file:", avg_csv_time, "ns")
+    avg_get_instructions_time = round(
+        total_get_instructions_time / no_files / nano, precision)
+    print("Average time to get instructions:", avg_get_instructions_time, "s")
 
 
 def main():
