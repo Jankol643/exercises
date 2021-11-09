@@ -1,0 +1,31 @@
+id,link,domain,subdomain,subsubdomain,difficulty,solved_date,instruction
+0,#https://www.hackerrank.com/challenges/30-hello-world,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 0 - Hello, World.pdf
+1,#https://www.hackerrank.com/challenges/30-data-types,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 1 - Data Types.pdf
+2,#https://www.hackerrank.com/challenges/30-operators,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 2 - Operators.pdf
+3,#https://www.hackerrank.com/challenges/30-conditional-statements,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 3 - Intro to Conditional Statements.pdf
+4,#https://www.hackerrank.com/challenges/30-class-vs-instance,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 4 - Class vs Instance.pdf
+5,#https://www.hackerrank.com/challenges/30-loops,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 5 - Loops.pdf
+6,#https://www.hackerrank.com/challenges/30-review-loop,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 6 - Lets Review.pdf
+7,#https://www.hackerrank.com/challenges/30-arrays,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 7 - Arrays.pdf
+8,#https://www.hackerrank.com/challenges/30-dictionaries-and-maps,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 8 - Dictionaries and Maps.pdf
+9,#https://www.hackerrank.com/challenges/30-recursion,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 9 - Recursion 3.pdf
+10,#https://www.hackerrank.com/challenges/30-binary-numbers,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 10 - Binary Numbers.pdf
+11,#https://www.hackerrank.com/challenges/30-2d-arrays,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 11 - 2D Arrays.pdf
+12,#https://www.hackerrank.com/challenges/30-inheritance,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 12 - Inheritance.pdf
+13,#https://www.hackerrank.com/challenges/30-abstract-classes,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 13 - Abstract Classes.pdf
+14,#https://www.hackerrank.com/challenges/30-scope,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 14 - Scope.pdf
+15,#https://www.hackerrank.com/challenges/30-linked-list,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 15 - Linked List.pdf
+16,#https://www.hackerrank.com/challenges/30-exceptions-string-to-integer,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 16 - Exceptions - String to Integer.pdf
+17,#https://www.hackerrank.com/challenges/30-more-exceptions,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 17 - More Exceptions.pdf
+18,#https://www.hackerrank.com/challenges/30-queues-stacks,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:18:51,instructions\Day 18 - Queues and Stacks.pdf
+19,#https://www.hackerrank.com/challenges/30-interfaces,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 14:21:26,instructions\Day 19 - Interfaces.pdf
+20,#https://www.hackerrank.com/challenges/30-sorting,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 15:18:33,instructions\Day 20 - Sorting.pdf
+21,#https://www.hackerrank.com/challenges/30-bitwise-and,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 15:33:39,instructions\Day 21 - Generics.pdf
+22,#https://www.hackerrank.com/challenges/30-generics,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 16:16:17,instructions\Day 22 - Binary Search Trees.pdf
+23,#https://www.hackerrank.com/challenges/30-binary-search-trees,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 16:16:17,instructions\Day 23 - BST Level Order Traversal.pdf
+24,#https://www.hackerrank.com/challenges/30-binary-trees,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 17:01:45,instructions\Day 24 - More Linked Lists.pdf
+25,#https://www.hackerrank.com/challenges/30-running-time-and-complexity,Practice,Tutorials,30 Days of Code,Medium,2021-11-01 17:30:16,instructions\Day 25 - Running Time and Complexity.pdf
+26,#https://www.hackerrank.com/challenges/30-nested-logic,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 18:12:32,instructions\Day 26 - Nested Logic.pdf
+27,#https://www.hackerrank.com/challenges/30-nested-logic,Practice,Tutorials,30 Days of Code,Easy,2021-11-01 18:46:55,instructions\Day 27 - Testing.pdf
+28,#https://www.hackerrank.com/challenges/30-regex-patterns,Practice,Tutorials,30 Days of Code,Medium,2021-11-01 19:03:13,instructions\Day 28 - RegEx, Patterns and Intro to Databases.pdf
+29,#https://www.hackerrank.com/challenges/30-regex-patterns,Practice,Tutorials,30 Days of Code,Medium,2021-11-01 20:19:59,instructions\Day 29 - Bitwise AND.pdf

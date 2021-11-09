@@ -1,0 +1,30 @@
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 0 - Hello, World.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 1 - Data Types.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 2 - Operators.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 3 - Intro to Conditional Statements.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 4 - Class vs Instance.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 5 - Loops.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 6 - Lets Review.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 7 - Arrays.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 8 - Dictionaries and Maps.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 9 - Recursion 3.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 10 - Binary Numbers.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 11 - 2D Arrays.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 12 - Inheritance.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 13 - Abstract Classes.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 14 - Scope.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 15 - Linked List.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 16 - Exceptions - String to Integer.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 17 - More Exceptions.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 18 - Queues and Stacks.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 19 - Interfaces.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 20 - Sorting.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Generics.java
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 22 - Binary Search Trees.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 23 - BST Level Order Traversal.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 24 - More Linked Lists.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 25 - Running Time and Complexity.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 26 - Nested Logic.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 27 - Testing.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 28 - RegEx, Patterns and Intro to Databases.py
+c:\Users\janko\Documents\GitHub\exercises\HackerRank\problems\30 days of Code\Day 29 - Bitwise AND.py
