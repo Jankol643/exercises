@@ -6,7 +6,7 @@ from global_vars import FOLDER
 def get_HTML_path(code_folder):
     # get correct HTML file
     html_file_name = code_folder + ".html"
-    subfolder = ['problems', 'HTML']
+    subfolder = ['HTML']
     subfolder = os.path.join(*subfolder)
     folder = FOLDER + os.path.sep + subfolder
     html_file_path = None
@@ -39,6 +39,7 @@ def get_problem_link_HTML(index, file_path):
                 item_index = challenge_list_items.index(item)
                 if index == item_index:
                     link = challenge_list_items[item_index]['href']
+                    break
         else:
             open_html_file.close()
             raise NotImplementedError("Support for " + code_folder + " hasn´t been implemented yet.")
@@ -59,7 +60,7 @@ def get_domains(file, soup):
     Gets the domain hierarchy of a HackerRank problem (maximum depth = 3)
     :returns: domain, subdomain, subsubdomain
     """
-    print("Getting domains for file " + file + "...")
+    print("Get domains for file " + file + "...")
     domain_list = list()
     spans = soup.find_all(
         'span', attrs={'class': 'breadcrumb-item-text'})
