@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-data-types
+# Difficulty: Easy
+
 # HackerRank Python
 # 30 days
 # Day 1 - Data types

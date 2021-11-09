@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-binary-trees
+# Difficulty: Easy
+
 class Node:
+
     def __init__(self,data):
         self.data = data
         self.next = None 

@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-inheritance
+# Difficulty: Easy
+
 class Person:
+
 	def __init__(self, firstName, lastName, idNumber):
 		self.firstName = firstName
 		self.lastName = lastName

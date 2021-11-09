@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-interfaces
+# Difficulty: Easy
+
 class AdvancedArithmetic(object):
+
     def divisorSum(n):
         raise NotImplementedError
 

@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-generics
+# Difficulty: Easy
+
 class Node:
+
     def __init__(self,data):
         self.right=self.left=None
         self.data = data

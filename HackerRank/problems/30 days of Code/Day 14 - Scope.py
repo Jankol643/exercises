@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-scope
+# Difficulty: Easy
+
 class Difference() :
+
     def __init__(self, a) :
         self.__elements = a
     def computeDifference(self) :

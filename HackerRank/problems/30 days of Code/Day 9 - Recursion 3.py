@@ -1,4 +1,6 @@
-#!/bin/python3
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-recursion
+# Difficulty: Easy
 
 import sys
 

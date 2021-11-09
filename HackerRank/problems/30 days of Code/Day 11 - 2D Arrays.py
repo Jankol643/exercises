@@ -1,4 +1,6 @@
-#!/bin/python3
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-2d-arrays
+# Difficulty: Easy
 
 def max_hour_glasses(matrix) :
     def get_hourglass_sum(matrix,row,col):

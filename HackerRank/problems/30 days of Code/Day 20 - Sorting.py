@@ -1,4 +1,6 @@
-#!/bin/python3
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-sorting
+# Difficulty: Easy
 
 def bubbleSort(n, a):
     # Track number of elements swapped during a single array traversal

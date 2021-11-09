@@ -1,4 +1,7 @@
-#!/bin/python3
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-dictionaries-and-maps
+# Difficulty: Easy
+
 def readInput():
     # read phone book
     lines = []

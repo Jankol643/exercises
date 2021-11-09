@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-nested-logic
+# Difficulty: Easy
+
 def minimum_index(seq):
+
     if len(seq) == 0:
         raise ValueError("Cannot get the minimum value index from an empty sequence")
     min_idx = 0

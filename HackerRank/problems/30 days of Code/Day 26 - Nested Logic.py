@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-nested-logic
+# Difficulty: Easy
+
 return_date = input()
+
 expected_date = input()
 
 return_day = int(return_date.split(" ")[0])

@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-queues-stacks
+# Difficulty: Easy
+
 import sys
+
 from collections import deque
 
 class Solution:

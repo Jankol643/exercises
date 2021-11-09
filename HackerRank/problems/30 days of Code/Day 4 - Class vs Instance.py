@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-class-vs-instance
+# Difficulty: Easy
+
 class Person:
+
     def __init__(self,initialAge):
         # Add some more code to run some checks on initialAge
         if (initialAge < 0) :

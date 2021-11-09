@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/30-running-time-and-complexity
+# Difficulty: Medium
+
 import math
 
 def is_prime(n):
