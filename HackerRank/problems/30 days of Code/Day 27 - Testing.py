@@ -22,7 +22,7 @@ class TestDataUniqueValues():
     @staticmethod
     def get_array():
         return [3, 1, 2]
-    
+
     @staticmethod
     def get_expected_result():
         return 1

@@ -83,7 +83,7 @@ public class Chapter4 {
 
 				digit = n % 10;
 				if (digit == 1) {
-					if (str == "")
+					if (str.isEmpty())
 						str = str + pos;
 					else
 						str = str + ", " + pos;

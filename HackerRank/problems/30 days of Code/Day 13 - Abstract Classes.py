@@ -13,6 +13,16 @@ class Book(object, metaclass=ABCMeta):
 
 class MyBook(Book) :
     def __init__(self, title, author, price) :
+        """
+        Initializes a book
+
+        :param title: title of book
+        :type title: string
+        :param author: author of book
+        :type author: string
+        :param price: price of book
+        :type price: int
+        """
         super().__init__(title, author)
         self.price = price
     def display(self) :

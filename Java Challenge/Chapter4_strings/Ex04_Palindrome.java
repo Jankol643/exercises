@@ -7,7 +7,7 @@ public class Ex04_Palindrome {
     }
 
     static boolean isPalindrome(String str) {
-        str = str.toUpperCase();
+        String UppercaseString = str.toUpperCase();
         int length = str.length();
         boolean isPalindrome = true;  
         

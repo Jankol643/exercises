@@ -2,27 +2,19 @@ import os
 import subprocess
 from datetime import datetime as DateTime
 from file import get_file_difficulty
-from global_vars import DIFFICULTY_PROMPT  # for getting solved date
+import global_vars
 from file import get_code_files, get_write_problem_link, correct_file_difficulty, write_string_to_file, DIFFICULTY_LINE_NUMBER
 from internet import get_HTML_path, get_domains
 import platform  # for determinating file creation date
 import git  # for checking if there are uncommitted files
-from global_vars import PROBLEMS, DATE, DATETIME_FORMAT, DATAPATH
 from bs4 import BeautifulSoup
 import time  # for calculating execution time
-
-
-GET_WRITE_PROBLEM_LINK_TIMES = list()
-GET_DOMAINS_TIMES = list()
-GET_DIFFICULTY_TIMES = list()
-GET_SOLVED_DATE_TIMES = list()
-GET_INSTRUCTIONS_TIMES = list()
+import pandas
+import re
 
 
 def files_to_push():
-    """
-    Checks if there are any uncommited files since last commit and aborts program
-    """
+    """Checks if there are any uncommited files since last commit and aborts program"""
     print("Check for uncommitted files...")
     result = []
     repo = git.Repo('.', search_parent_directories=True)
@@ -36,8 +28,28 @@ def files_to_push():
 
 
 class HackerRankProblem():
-    def __init__(self, id, link, domain, subdomain, subsubdomain, difficulty, solved_date, instruction):
-        self.id = id
+    def __init__(self, problem_id, link, domain, subdomain, subsubdomain, difficulty, solved_date, instruction):
+        """
+        Initializes a new HackerRankProblem
+
+        :param problem_id: id of problem
+        :type problem_id: int
+        :param link: link to problem on hackerrank.com
+        :type link: string
+        :param domain: category of problem
+        :type domain: string
+        :param subdomain: subcategory of problem
+        :type subdomain: string or None
+        :param subsubdomain: subsubcategory of problem
+        :type subsubdomain: string or None
+        :param difficulty: difficulty of hackerrank problem according to website
+        :type difficulty: string
+        :param solved_date: date when problem was solved
+        :type solved_date: string
+        :param instruction: relative path to instruction file
+        :type instruction: string
+        """
+        self.problem_id = problem_id
         self.link = link
         self.domain = domain
         self.subdomain = subdomain
@@ -63,7 +75,7 @@ def process_problems():
         link, success = get_write_problem_link(file, index)
         get_write_problem_link_time_end = time.perf_counter_ns()
         total_time = get_write_problem_link_time_end - get_write_problem_link_time_start
-        GET_WRITE_PROBLEM_LINK_TIMES.append(total_time)
+        global_vars.GET_WRITE_PROBLEM_LINK_TIMES.append(total_time)
         if success is False:
             errors.append(file)
         splitted_path = file.split(os.path.sep)
@@ -78,10 +90,11 @@ def process_problems():
             domain, subdomain, subsubdomain = get_domains(file, soup)
             get_domains_times_end = time.perf_counter_ns()
             time_spent = get_domains_times_end - get_domains_times_start
-            GET_DOMAINS_TIMES.append(time_spent)
+            global_vars.GET_DOMAINS_TIMES.append(time_spent)
             difficulty = get_difficulty(file, index, soup)
             solved_date = get_solved_date(file)
             instruction = get_instructions(file)
+            instruction = '\"' + instruction + '\"'
             problem = HackerRankProblem(
                 running_id, link, domain, subdomain, subsubdomain, difficulty, solved_date, instruction)
             problem_list.append(problem)
@@ -113,18 +126,18 @@ def get_difficulty(file, index, soup):
             correct_file_difficulty(file, html_difficulty)
         get_difficulty_end = time.perf_counter_ns()
         time_spent = get_difficulty_end - get_difficulty_start
-        GET_DIFFICULTY_TIMES.append(time_spent)
+        global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
         return html_difficulty
     else:  # difficulty not found in file
         # get difficulty from HTML only
         div = soup.find_all('div', attrs={'class': 'card-details'})[index]
         first_child = next(div.children, None)
         html_difficulty = first_child.text.strip()
-        write_difficulty = DIFFICULTY_PROMPT + html_difficulty + '\n'
+        write_difficulty = global_vars.DIFFICULTY_PROMPT + html_difficulty + '\n'
         write_string_to_file(file, write_difficulty, DIFFICULTY_LINE_NUMBER)
         get_difficulty_end = time.perf_counter_ns()
         time_spent = get_difficulty_end - get_difficulty_start
-        GET_DIFFICULTY_TIMES.append(time_spent)
+        global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
         return html_difficulty
 
 
@@ -142,44 +155,46 @@ def get_creation_date(filename):
         # cannot determine os
         ts = os.stat(filename).st_ctime
     ts = DateTime.fromtimestamp(ts)
-    temp = DateTime.strftime(ts, DATETIME_FORMAT)
-    ts = DateTime.strptime(temp, DATETIME_FORMAT)
+    temp = DateTime.strftime(ts, global_vars.DATETIME_FORMAT)
+    ts = DateTime.strptime(temp, global_vars.DATETIME_FORMAT)
     return ts
 
 
 def get_solved_date(file):
     """
-    Get the date the HackerRank problem was solved given by the last commit date
+    Get the date the HackerRank problem was solved
+
     :string file: file to calculate solved date of
-    :returns: solved date (int)
+    :returns: solved date (string)
     """
     get_solved_date_start = time.perf_counter_ns()
     print("Get solved date for file " + file)
-    if DATE not in ['creation', 'last modification', 'first commit']:
+    if global_vars.DATE not in ['creation', 'last modification', 'first commit']:
         raise ValueError()
-    if DATE == 'creation':
+    if global_vars.DATE == 'creation':
         date = get_creation_date(file)
         get_solved_date_end = time.perf_counter_ns()
         time_spent = get_solved_date_end - get_solved_date_start
-        GET_SOLVED_DATE_TIMES.append(time_spent)
+        global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
         return str(date)
-    elif DATE == 'last modified':
-        process = subprocess.Popen("git pull", stdout=subprocess.PIPE)
+    elif global_vars.DATE == 'last modified':
+        args = ["git pull"]
+        subprocess.Popen(args, stdout=subprocess.PIPE)
 
-        command = 'git log --follow -p -- ' + "\"" + file + "\""
-        p = subprocess.check_output(command, cwd=PROBLEMS, shell=True)
+        args = ['git log', '--follow', '-p', '-- ' + "\"" + file + "\""]
+        p = subprocess.check_output(args, cwd=global_vars.PROBLEMS)
 
         p = p.decode('utf-8')
         p = p.split('\n')[2]
         p = p[8:]
-        dt = DateTime.strptime(p, DATETIME_FORMAT)
+        dt = DateTime.strptime(p, global_vars.DATETIME_FORMAT)
         get_solved_date_end = time.perf_counter_ns()
         time_spent = get_solved_date_end - get_solved_date_start
-        GET_SOLVED_DATE_TIMES.append(time_spent)
+        global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
         return str(dt)
-    elif DATE == 'first commit':
-        command = 'git log --diff-filter=A --follow --format=%aI -1 -p -- ' + "\"" + file + "\""
-        date = subprocess.check_output(command, cwd=PROBLEMS, shell=True)
+    elif global_vars.DATE == 'first commit':
+        args = ['git log', '--diff-filter=A', '--follow', '--format=%aI', '-1', '-p', '-- ' + "\"" + file + "\""]
+        date = subprocess.check_output(args, cwd=global_vars.PROBLEMS)
         date = date.decode('utf-8')
         date = date.split('\n')[0]
         length = len(date)
@@ -190,10 +205,10 @@ def get_solved_date(file):
                 # replace T with space and cut timezone
                 date = date[0:i] + ' ' + date[i + 1:length-5]
                 break
-        date_obj = DateTime.strptime(date, DATETIME_FORMAT)
+        date_obj = DateTime.strptime(date, global_vars.DATETIME_FORMAT)
         get_solved_date_end = time.perf_counter_ns()
         time_spent = get_solved_date_end - get_solved_date_start
-        GET_SOLVED_DATE_TIMES.append(time_spent)
+        global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
         return str(date_obj)
 
 
@@ -213,19 +228,19 @@ def get_instructions(file):
             'Day 21 - ' + file_name_no_ext + ".pdf"
         get_instructions_end = time.perf_counter_ns()
         time_spent = get_instructions_end - get_instructions_start
-        GET_INSTRUCTIONS_TIMES.append(time_spent)
+        global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
         return instruction_path
     instruction_path = "instructions" + os.path.sep + file_name_no_ext + ".pdf"
-    full_path = PROBLEMS + '30 days of Code' + os.path.sep + instruction_path
+    full_path = global_vars.PROBLEMS + '30 days of Code' + os.path.sep + instruction_path
     if os.path.exists(full_path):
         get_instructions_end = time.perf_counter_ns()
         time_spent = get_instructions_end - get_instructions_start
-        GET_INSTRUCTIONS_TIMES.append(time_spent)
+        global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
         return instruction_path
     else:
         get_instructions_end = time.perf_counter_ns()
         time_spent = get_instructions_end - get_instructions_start
-        GET_INSTRUCTIONS_TIMES.append(time_spent)
+        global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
         return None
 
 
@@ -236,7 +251,7 @@ def write_to_csv(problem_list):
     """
     print("Writing problems to file...")
     try:
-        with open(DATAPATH, 'w') as f:
+        with open(global_vars.DATAPATH, 'w') as f:
             # write column names to file
             result = list()
             dummy_obj = HackerRankProblem(
@@ -249,14 +264,13 @@ def write_to_csv(problem_list):
             # write problems to file
             for item in problem_list:
                 result = list()
-                index = problem_list.index(item)
                 string = ''
                 for key in item.__dict__:
                     result.append(str(getattr(item, key)))
                 string = ','.join(result)
                 f.write(string + '\n')
     except IOError:
-        print('IOError occured while accessing', DATAPATH)
+        print('IOError occured while accessing', global_vars.DATAPATH)
     except Exception:
         raise Exception()
 
@@ -272,38 +286,47 @@ def print_statistics(total_time):
     time_per_file = round(total_time / no_files / nano, precision)
     print("Execution time per file", time_per_file, "s")
     total_get_write_problem_link_time = 0
-    for time in GET_WRITE_PROBLEM_LINK_TIMES:
-        total_get_write_problem_link_time += time
+    for exec_time1 in global_vars.GET_WRITE_PROBLEM_LINK_TIMES:
+        total_get_write_problem_link_time += exec_time1
     avg_get_write_problem_link_time = round(
         total_get_write_problem_link_time / no_files / nano, precision)
     print("Average time to get or write problem link to file:",
           avg_get_write_problem_link_time, "s")
     total_get_domains_time = 0
-    for time in GET_DOMAINS_TIMES:
-        total_get_domains_time += time
+    for exec_time2 in global_vars.GET_DOMAINS_TIMES:
+        total_get_domains_time += exec_time2
     avg_get_domains_time = round(
         total_get_domains_time / no_files / nano, precision)
     print("Average time to get domains:", avg_get_domains_time, "s")
     total_get_difficulty_time = 0
-    for time in GET_DIFFICULTY_TIMES:
-        total_get_difficulty_time += time
+    for exec_time3 in global_vars.GET_DIFFICULTY_TIMES:
+        total_get_difficulty_time += exec_time3
     avg_get_difficulty_time = round(
         total_get_difficulty_time / no_files / nano, precision)
     print("Average time to get difficulty:", avg_get_difficulty_time, "s")
     total_get_solved_date_time = 0
-    for time in GET_SOLVED_DATE_TIMES:
-        total_get_solved_date_time += time
+    for exec_time4 in global_vars.GET_SOLVED_DATE_TIMES:
+        total_get_solved_date_time += exec_time4
     avg_get_solved_date_time = round(
         total_get_solved_date_time / no_files / nano, precision)
     print("Average time to get solved date time:",
           avg_get_solved_date_time, "s")
     total_get_instructions_time = 0
-    for time in GET_INSTRUCTIONS_TIMES:
-        total_get_instructions_time += time
+    for exec_time5 in global_vars.GET_INSTRUCTIONS_TIMES:
+        total_get_instructions_time += exec_time5
     avg_get_instructions_time = round(
         total_get_instructions_time / no_files / nano, precision)
     print("Average time to get instructions:", avg_get_instructions_time, "s")
 
+def convert_to_html_table():
+    csv_filename = 'items.csv'
+    html_filename = 'problem_list2.html'
+    html_file = open(html_filename, 'w')
+    html_file.close()
+    df = pandas.read_csv(csv_filename, index_col=0, delimiter=',')
+    print(df)
+    df.drop(index=[0, 1])
+    df.to_html(html_filename)
 
 def main():
     total_time_start = time.perf_counter_ns()
@@ -313,6 +336,6 @@ def main():
     total_time_end = time.perf_counter_ns()
     total_time = total_time_end - total_time_start
     print_statistics(total_time)
-
+    convert_to_html_table()
 
 main()

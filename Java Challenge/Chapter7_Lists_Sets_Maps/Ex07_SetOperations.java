@@ -3,7 +3,6 @@ package Chapter7_Lists_Sets_Maps;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class Ex07_SetOperations {

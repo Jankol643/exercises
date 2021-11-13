@@ -7,7 +7,7 @@ class Node:
     def __init__(self,data):
         self.data = data
         self.next = None 
-class Solution: 
+class Solution:
     def insert(self,head,data):
             p = Node(data)           
             if head==None:
@@ -47,4 +47,4 @@ for i in range(T):
     data=int(input())
     head=mylist.insert(head,data)    
 head=mylist.removeDuplicates(head)
-mylist.display(head); 
+mylist.display(head)

@@ -5,7 +5,6 @@
 def binaryNumbers(n) :
 
     def convertToBinary(n) :
-        res = 0
         binary= []
         while(n>0):
             d=n%2
@@ -29,7 +28,7 @@ def binaryNumbers(n) :
         return consecutive
 
     binary = convertToBinary(n)
-    result = countConsecutive(binary, 1)    
+    result = countConsecutive(binary, 1)
 
     return result
 if __name__ == '__main__':

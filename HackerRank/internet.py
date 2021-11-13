@@ -22,7 +22,16 @@ def get_HTML_path(code_folder):
 
 def get_problem_link_HTML(index, file_path):
     """
-    Gets the problem link for a given file
+    Get the problem link from a HTML file
+
+    :param index: index of file in file list
+    :type index: int
+    :param file_path: path to problem file
+    :type file_path: string
+    :raises NotImplementedError: when problem file is in a not recognized folder
+    :raises FileNotFoundError: when HTML file could not be found
+    :return: link to problem description on the internet or None, success
+    :rtype: string, None, True/False
     """
     print("Get link for file " + str(index) + "(" + str(file_path) + ")" + " ...")
     splitted_path = file_path.split(os.path.sep)

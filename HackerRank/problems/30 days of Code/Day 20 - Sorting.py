@@ -5,7 +5,7 @@
 def bubbleSort(n, a):
     # Track number of elements swapped during a single array traversal
     number_of_swaps = 0
-    for i in range(n):        
+    for dummy_var in range(n):        
         for j in range(n-1):
             # Swap adjacent elements if they are in decreasing order
             if (a[j] > a[j + 1]):

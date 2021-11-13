@@ -12,7 +12,8 @@ public class Ex03_PerfectNumbers {
         ArrayList<Integer> list = new ArrayList<Integer>();
 
         for(int i = 2; i < n; i++) {
-            if (isPerfectNumberSimple(i) == true)
+            boolean isPerfectNumber = isPerfectNumberSimple(i);
+            if (isPerfectNumber)
                 list.add(i);
         }
         return list;

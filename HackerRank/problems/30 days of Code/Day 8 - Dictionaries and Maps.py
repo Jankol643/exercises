@@ -5,7 +5,7 @@
 def readInput():
     # read phone book
     lines = []
-    for i in range(0, n):
+    for dummy_var in range(0, n):
         lines.append(input())
     phoneBook = buildPhoneBook(lines)
     # read all queries
@@ -33,6 +33,6 @@ def searchPhoneBook(phoneBook, nameQuery) :
         print(str(nameQuery) + "=" + str(phoneBook[nameQuery]))
     else :
         print("Not found")
-if __name__ == '__main__':    
+if __name__ == '__main__':
     n = int(input().strip())  # number of names and telephone numbers
     readInput()

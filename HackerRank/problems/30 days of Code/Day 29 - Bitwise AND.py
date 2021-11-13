@@ -33,5 +33,6 @@ if __name__ == '__main__':
 
         result.append(bitwiseAnd(n, k))
 
-    for i in range(len(result)):
-        print(result[i])
+    enum_res = enumerate(result)
+    for enum_res in enumerate(result):
+        print(enum_res)

@@ -2,8 +2,6 @@
 #https://www.hackerrank.com/challenges/30-binary-search-trees
 # Difficulty: Easy
 
-import sys
-
 
 class Node:
     def __init__(self,data):

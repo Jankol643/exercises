@@ -7,8 +7,9 @@
 def printStrings(n, string):
     evenChars = ""
     oddChars = ""
-    for i in range(0, len(string)):
-        char = string[i]
+    enum_string = enumerate(string)
+    for enum_string in enumerate(string):
+        char = enum_string[i]
         if (i % 2 == 0):  # even character position
             evenChars += char
         else:  # uneven/odd character position

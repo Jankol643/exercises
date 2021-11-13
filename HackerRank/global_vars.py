@@ -8,3 +8,9 @@ FILE_LIST = FOLDER + os.path.sep + 'file_list.txt'
 DATE = 'first commit'
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 DIFFICULTY_PROMPT = '# Difficulty: '
+
+GET_WRITE_PROBLEM_LINK_TIMES = [2, 3, 7, 8]
+GET_DOMAINS_TIMES = [2, 3, 7, 8]
+GET_DIFFICULTY_TIMES = [2, 3, 7, 8]
+GET_SOLVED_DATE_TIMES = [2, 3, 7, 8]
+GET_INSTRUCTIONS_TIMES = [2, 3, 7, 8]

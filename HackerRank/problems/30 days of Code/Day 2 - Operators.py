@@ -2,12 +2,6 @@
 #https://www.hackerrank.com/challenges/30-operators
 # Difficulty: Easy
 
-import math
-import os
-import random
-import re
-import sys
-
 #
 # Complete the 'solve' function below.
 #

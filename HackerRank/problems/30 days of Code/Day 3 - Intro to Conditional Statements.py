@@ -2,12 +2,6 @@
 #https://www.hackerrank.com/challenges/30-conditional-statements
 # Difficulty: Easy
 
-import math
-import os
-import random
-import re
-import sys
-
 def weirdNotWeird(n) :
     if (n % 2 != 0) : # odd number
         print("Weird")

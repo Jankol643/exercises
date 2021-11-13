@@ -2,7 +2,6 @@ import os
 import re  # for sorting files
 import subprocess
 import sys
-import time
 
 from global_vars import FOLDER, PROBLEMS, DIFFICULTY_PROMPT
 from internet import get_problem_link_HTML
@@ -16,6 +15,7 @@ DIFFICULTY_LINE_NUMBER = 3  # difficulty should be written on third line of file
 def import_module(file_path):
     """
     Imports the module specified in the relative path
+    
     :string file_path: relative path to file
     """
     final_path = ''
@@ -47,7 +47,8 @@ def get_code_files():
     Gets file paths of code files in all subdirectories
     :returns: list of file paths
     """
-    process = subprocess.Popen("git pull", stdout=subprocess.PIPE)
+    args = ['git pull']
+    subprocess.Popen(args, stdout=subprocess.PIPE)
     result = list()
     no_files = 0
     file_extensions = ['.java', '.py']

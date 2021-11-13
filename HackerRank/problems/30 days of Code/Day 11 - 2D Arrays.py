@@ -4,16 +4,16 @@
 
 def max_hour_glasses(matrix) :
     def get_hourglass_sum(matrix,row,col):
-        sum = 0
-        sum = sum + matrix[row-1][col-1]  #current sum + top left element
-        sum = sum + matrix[row-1][col]    #current sum + element above the matrix[i,j]
-        sum = sum + matrix[row-1][col+1]  #current sum + top right element
-        sum = sum + matrix[row][col]      #current sum + middle element of hg/matrix[i,j]
-        sum = sum + matrix[row+1][col-1]  #current sum + bottom left element of hg
-        sum = sum + matrix[row+1][col]    #current sum + element below the matrix[i,j]
-        sum = sum + matrix[row+1][col+1]  #current sum + bottom right element 
-        return sum
-    
+        hg_sum = 0
+        hg_sum = hg_sum + matrix[row-1][col-1]  #current sum + top left element
+        hg_sum = hg_sum + matrix[row-1][col]    #current sum + element above the matrix[i,j]
+        hg_sum = hg_sum + matrix[row-1][col+1]  #current sum + top right element
+        hg_sum = hg_sum + matrix[row][col]      #current sum + middle element of hg/matrix[i,j]
+        hg_sum = hg_sum + matrix[row+1][col-1]  #current sum + bottom left element of hg
+        hg_sum = hg_sum + matrix[row+1][col]    #current sum + element below the matrix[i,j]
+        hg_sum = hg_sum + matrix[row+1][col+1]  #current sum + bottom right element
+        return hg_sum
+
     max_hourglass_sum = -63 # minimum value of an element a
     #looping through the 2d matrix
     for i in range(1, len(matrix)-1):
@@ -31,5 +31,5 @@ if __name__ == '__main__':
         row = input().strip().split(' ')
         row = list(map(int, row))
         matrix.append(row)
-    max = max_hour_glasses(matrix)
-    print(max)
+    res = max_hour_glasses(matrix)
+    print(res)

@@ -5,9 +5,10 @@
 class Person:
 
 	def __init__(self, firstName, lastName, idNumber):
-		self.firstName = firstName
-		self.lastName = lastName
-		self.idNumber = idNumber
+            self.firstName = firstName
+            self.lastName = lastName
+            self.idNumber = idNumber
+
 	def printPerson(self):
 		print("Name:", self.lastName + ",", self.firstName)
 		print("ID:", self.idNumber)
@@ -21,18 +22,30 @@ class Student(Person):
     #   id - An integer denoting the Person's ID number.
     #   scores - An array of integers denoting the Person's test scores.
     #
-    def __init__(self, firstName, lastName, id, scores) :
-        Person.__init__(self, firstName, lastName, id)
+    def __init__(self, firstName, lastName, idNumber, scores) :
+        """
+        Create a Student
+
+        :param firstName: first name of student
+        :type firstName: string
+        :param lastName: last name of student
+        :type lastName: string
+        :param idNumber: unique id of student
+        :type idNumber: int
+        :param scores: the Person's test scores
+        :type scores: array[int]
+        """
+        Person.__init__(self, firstName, lastName, idNumber)
         self.scores = scores
 
     #   Function Name: calculate
     #   Return: A character denoting the grade.
     #
     def calculate(self) :
-        sum = 0
+        total_score_sum = 0
         for score in self.scores:
-            sum += score
-        avg_score = sum / len(self.scores)
+            total_score_sum += score
+        avg_score = total_score_sum / len(self.scores)
         if (avg_score >= 90 and avg_score <= 100) :
             return 'O'
         elif (avg_score >= 80 and avg_score < 90) :

@@ -1,10 +1,10 @@
 package sprechenSieJava;
 
 /**
- * "Sprechen Sie Java" (Hanspeter Mössenböck) - 4th edition
+ * "Sprechen Sie Java" (Hanspeter Moessenboeck) - 4th edition
  * Chapter 3 - Verzweigungen
  * Created: 10/10/2021
- * @author janko
+ * @author Jankol643
  *
  */
 public class Chapter3 {
@@ -60,24 +60,24 @@ public class Chapter3 {
 
 	/**
 	 * Checks if a triangle is equilateral (gleichseitig), right-angled, isosceles (gleichschenkelig), valid oder invalid
-	 * @param x Seitenlänge x des Dreiecks
-	 * @param y Seitenlänge y des Dreiecks
-	 * @param z Seitenlänge z des Dreiecks
+	 * @param x Seitenlaenge x des Dreiecks
+	 * @param y Seitenlaenge y des Dreiecks
+	 * @param z Seitenlaenge z des Dreiecks
 	 * @return Art des Dreiecks
 	 */
 	public static String checkTriangleType(int x, int y, int z) {
-		String triangleType;
+		boolean checkPythagoras = checkPythagoras(x, y, z);
 		if (x == y) {
 			if (y == z) {
 				return triangleType = "equilateral";
 			}
-			if (checkPythagoras(x, y, z) == true) {
+			if (checkPythagoras) {
 				return triangleType = "rightangled und isosceles";
 			}
 			return triangleType = "isosceles";
 		}
 
-		if (checkPythagoras(x, y, z) == true) {
+		if (checkPythagoras) {
 			return triangleType = "rightangled";
 		}
 		if (((x + y) <= z) || ((y + z) <= x) || ((x + z) <= y)) {
@@ -88,11 +88,11 @@ public class Chapter3 {
 	}
 
 	/**
-	 * Prüft, ob drei Zahlen den Satz des Pythagoras erfüllen oder nicht
+	 * Prï¿½ft, ob drei Zahlen den Satz des Pythagoras erfï¿½llen oder nicht
 	 * @param x erste Zahl
 	 * @param y zweite Zahl
 	 * @param z dritte Zahl
-	 * @return Satz des Pythagoras erfüllt oder nicht
+	 * @return Satz des Pythagoras erfï¿½llt oder nicht
 	 */
 	public static Boolean checkPythagoras(int x, int y, int z) {
 		double dx = (double)(x);

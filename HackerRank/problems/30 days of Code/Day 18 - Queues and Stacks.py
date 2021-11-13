@@ -2,12 +2,11 @@
 #https://www.hackerrank.com/challenges/30-queues-stacks
 # Difficulty: Easy
 
-import sys
-
 from collections import deque
 
 class Solution:
     def __init__(self):
+        """Initializes Solution object by creating a stack and a queue"""
         self.stack = list()
         self.queue = deque()
 

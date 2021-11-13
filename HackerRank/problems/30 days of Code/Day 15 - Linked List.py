@@ -14,7 +14,7 @@ class Solution:
             print(current.data,end=' ')
             current = current.next
 
-    def insert(self,head,data): 
+    def insert(self,head,data):
         new_node = Node(data)
         if (head == None) : # starting a new list
             return new_node # return new node as head
