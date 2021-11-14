@@ -15,7 +15,7 @@ DIFFICULTY_LINE_NUMBER = 3  # difficulty should be written on third line of file
 def import_module(file_path):
     """
     Imports the module specified in the relative path
-    
+
     :string file_path: relative path to file
     """
     final_path = ''
@@ -45,9 +45,10 @@ def import_module(file_path):
 def get_code_files():
     """
     Gets file paths of code files in all subdirectories
+
     :returns: list of file paths
     """
-    args = ['git pull']
+    args = ['git', 'pull']
     subprocess.Popen(args, stdout=subprocess.PIPE)
     result = list()
     no_files = 0
@@ -119,28 +120,34 @@ def get_write_problem_link(file_path, index):
     import fileUtil
     lines = fileUtil.read_file_to_list(file_path, True)
     if len(lines) > 1:
-        first_line = lines[0]
-        if first_line == '#!/usr/bin/env python3':
+        if lines[0] == '#!/usr/bin/env python3':
             if not lines[1].startswith('#https://www.hackerrank.com/'):
-                link, success = get_problem_link_HTML(index, file_path)
+                html_link, success = get_problem_link_HTML(index, file_path)
                 if success is True:
-                    write_link = '#' + link
+                    write_link = '#' + html_link
                     write_string_to_file(
                         file_path, write_link, LINK_LINE_NUMBER)
-                return link, success
+                return html_link, success
             else:  # first line is shebang, second line is link
                 link = lines[1]
+                link = link[1:]  # remove comment sign ('#') from link
                 success = True
                 return link, success
         else:  # first line is not a shebang
             import_module(MISC_PATH)
             import fileUtil
             fileUtil.write_shebang(file_path, 3)
-            # second line is a link
             if lines[1].startswith('#https://www.hackerrank.com/'):
-                link = lines[1]
-                link = link[1:]  # remove comment sign ('#') from link
-                success = True
+                # second line is a link
+                file_link = lines[1]
+                # check if file link and html link are equal
+                html_link, success = get_problem_link_HTML(index, file_path)
+                if success is True:
+                    if file_link == html_link:
+                        link = file_link
+                        link = link[1:]  # remove comment sign ('#') from link
+                    else:
+                        link = html_link
                 return link, success
             else:  # second line of file contains no link
                 link, success = get_problem_link_HTML(index, file_path)
@@ -154,7 +161,18 @@ def get_write_problem_link(file_path, index):
         success = False
         return link, success
 
+
 def delete_excess_difficulties(file_lines, file):
+    """
+    Checks for duplicate difficulties in the file and removes them
+
+    :param file_lines: lines of file
+    :type file_lines: list
+    :param file: path to file to check
+    :type file: string
+    :return: lines of file without duplicate difficulties
+    :rtype: list
+    """
     found = False
     changed = False
     for line in file_lines:
@@ -181,7 +199,11 @@ def delete_excess_difficulties(file_lines, file):
 def get_file_difficulty(file):
     """
     Gets the difficulty of a HackerRank problem from file
-    :returns: difficulty (string) or None
+
+    :param file: path to problem file
+    :type file: string
+    :return: difficulty or None
+    :rtype: string or None
     """
     file_lines = list()
     # search for difficulty in file
@@ -203,14 +225,18 @@ def get_file_difficulty(file):
 def correct_file_difficulty(file, correct_difficulty):
     """
     Corrects the difficulty in a given file
+
     :string file: path to file
+    :type file: string
     :string correct_difficulty: difficulty to write to file
+    :type correct_difficulty: string
     """
     import_module(MISC_PATH)
     import fileUtil
     lines = fileUtil.read_file_to_list(file, True)
     if lines[DIFFICULTY_LINE_NUMBER - 1].startswith(DIFFICULTY_PROMPT):
-        lines[DIFFICULTY_LINE_NUMBER - 1] = DIFFICULTY_PROMPT + str(correct_difficulty)
+        lines[DIFFICULTY_LINE_NUMBER - 1] = DIFFICULTY_PROMPT + \
+            str(correct_difficulty)
     with open(file, 'w') as f:
         for line in lines:
             f.write(line + '\n')
