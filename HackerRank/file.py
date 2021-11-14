@@ -3,7 +3,7 @@ import re  # for sorting files
 import subprocess
 import sys
 
-from global_vars import FOLDER, PROBLEMS, DIFFICULTY_PROMPT
+from global_vars import FOLDER, PROBLEMS, SHEBANG, DIFFICULTY_PROMPT, FILE_LINK_BEGINNING
 from internet import get_problem_link_HTML
 
 FILE_LIST = FOLDER + '/' + 'file_list.txt'
@@ -42,6 +42,23 @@ def import_module(file_path):
     sys.path.append(final_path)
 
 
+def append_files_to_filelist():
+    """
+    Appends file to a list if they have certain extensions
+
+    :return: list of files
+    :rtype: list
+    """
+    result = list()
+    file_extensions = ['.java', '.py']
+    for root, _, files in os.walk(PROBLEMS):
+        for entry in files:
+            for ext in file_extensions:
+                if entry.endswith(ext):
+                    result.append(entry)
+    return result
+
+
 def get_code_files():
     """
     Gets file paths of code files in all subdirectories
@@ -51,30 +68,15 @@ def get_code_files():
     args = ['git', 'pull']
     subprocess.Popen(args, stdout=subprocess.PIPE)
     result = list()
-    no_files = 0
-    file_extensions = ['.java', '.py']
-
-    for _, _, files in os.walk(PROBLEMS):
-        for entry in files:
-            for ext in file_extensions:
-                if entry.endswith(ext):
-                    no_files += 1
 
     import_module(MISC_PATH)
-    import fileUtil
-    if (os.path.exists(FILE_LIST) and fileUtil.file_lines(FILE_LIST) == no_files):
-        # file list exists and contains correct number of lines
+    if (os.path.exists(FILE_LIST)):
         with open(FILE_LIST, 'r') as f:
             for line in f:
                 line = line.replace('\n', '')
                 result.append(line)
     else:
-        for root, _, files in os.walk(PROBLEMS):
-            for entry in files:
-                for ext in file_extensions:
-                    if entry.endswith(ext):
-                        entry = os.path.join(root, entry)
-                        result.append(entry)
+        result = append_files_to_filelist()
         import masterUtil
         result = masterUtil.sort_logically(result)
         # ensure that java file with no index in filename is correctly inserted
@@ -109,6 +111,45 @@ def write_string_to_file(file_path, string, line_no):
             f.write(line + '\n')
 
 
+def correct_file_link(file_path, html_link):
+    import_module(MISC_PATH)
+    import fileUtil
+    lines = fileUtil.read_file_to_list(file_path, True)
+    if lines[LINK_LINE_NUMBER - 1].startswith(FILE_LINK_BEGINNING):
+        lines[LINK_LINE_NUMBER - 1] = '#' + str(html_link)
+    with open(file_path, 'w') as f:
+        for line in lines:
+            f.write(line + '\n')
+    
+
+def check_links_equal(file_path, lines, index):
+    """
+    Check if file and HTML have identical links for a problem
+
+    :param file_path: path to file
+    :type file_path: string
+    :param index: index of problem file
+    :type index: int
+    """
+    file_link = lines[1]
+    # check if file link and html link are equal
+    html_link, success = get_problem_link_HTML(index, file_path)
+    if success is True:
+        if file_link == html_link:
+            link = file_link[1:]  # remove comment sign ('#') from link
+        else:
+            correct_file_link(file_path, html_link)
+            link = html_link
+        return link, success
+    else: # could not get link from HTML file
+        link = file_link[1:]  # remove comment sign ('#') from link
+        if link.startswith(FILE_LINK_BEGINNING):
+            success = True
+        else:
+            success = False
+        return link, success
+
+
 def get_write_problem_link(file_path, index):
     """
     Get the problem link for a HackerRank code file and writes it to it if not present
@@ -120,8 +161,8 @@ def get_write_problem_link(file_path, index):
     import fileUtil
     lines = fileUtil.read_file_to_list(file_path, True)
     if len(lines) > 1:
-        if lines[0] == '#!/usr/bin/env python3':
-            if not lines[1].startswith('#https://www.hackerrank.com/'):
+        if lines[0] == SHEBANG:
+            if not lines[1].startswith(FILE_LINK_BEGINNING):
                 html_link, success = get_problem_link_HTML(index, file_path)
                 if success is True:
                     write_link = '#' + html_link
@@ -129,25 +170,15 @@ def get_write_problem_link(file_path, index):
                         file_path, write_link, LINK_LINE_NUMBER)
                 return html_link, success
             else:  # first line is shebang, second line is link
-                link = lines[1]
-                link = link[1:]  # remove comment sign ('#') from link
-                success = True
+                link, success = check_links_equal(file_path, lines, index)
                 return link, success
         else:  # first line is not a shebang
             import_module(MISC_PATH)
             import fileUtil
             fileUtil.write_shebang(file_path, 3)
-            if lines[1].startswith('#https://www.hackerrank.com/'):
+            if lines[1].startswith(FILE_LINK_BEGINNING):
                 # second line is a link
-                file_link = lines[1]
-                # check if file link and html link are equal
-                html_link, success = get_problem_link_HTML(index, file_path)
-                if success is True:
-                    if file_link == html_link:
-                        link = file_link
-                        link = link[1:]  # remove comment sign ('#') from link
-                    else:
-                        link = html_link
+                link, success = check_links_equal(file_path, lines, index)
                 return link, success
             else:  # second line of file contains no link
                 link, success = get_problem_link_HTML(index, file_path)
@@ -162,21 +193,23 @@ def get_write_problem_link(file_path, index):
         return link, success
 
 
-def delete_excess_difficulties(file_lines, file):
+def delete_excess_metainfo(file_lines, file):
     """
-    Checks for duplicate difficulties in the file and removes them
+    Checks for duplicate metainfo in the file and removes it
 
     :param file_lines: lines of file
     :type file_lines: list
     :param file: path to file to check
     :type file: string
-    :return: lines of file without duplicate difficulties
+    :return: lines of file without duplicate metainfo
     :rtype: list
     """
+    metainfo = [DIFFICULTY_PROMPT, FILE_LINK_BEGINNING]
     found = False
     changed = False
+    metainfo_tuple = tuple(metainfo)
     for line in file_lines:
-        if line.startswith(DIFFICULTY_PROMPT):
+        if line.startswith(metainfo_tuple):
             if found is True:
                 changed = True
                 file_lines.remove(line)
@@ -213,7 +246,6 @@ def get_file_difficulty(file):
                 file_lines.append(line)
     except IOError:
         return None
-    file_lines = delete_excess_difficulties(file_lines, file)
     difficulty = file_lines[DIFFICULTY_LINE_NUMBER - 1]
     if difficulty.startswith(DIFFICULTY_PROMPT):
         difficulty = difficulty.rstrip('\n')
