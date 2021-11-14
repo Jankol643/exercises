@@ -1,4 +1,4 @@
-package sprechenSieJava.Chapter10;
+package chapter10;
 
 class Rectangle {
     int x, y; // left top corner

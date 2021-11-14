@@ -1,11 +1,12 @@
-package sprechenSieJava.Chapter10;
+package chapter10;
 import java.io.File;
 import java.util.Scanner;
 
 class Client {
     int id;
     String name;
-    Address priv, office;
+    Address priv;
+    Address office;
     Order[] orderList;
 }
 

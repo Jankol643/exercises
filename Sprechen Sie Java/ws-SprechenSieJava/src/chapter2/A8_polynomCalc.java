@@ -1,23 +1,11 @@
-package sprechenSieJava;
+package chapter2;
 
 import java.util.Scanner;
 
-public class Chapter2 {
-	public static void main(String[] args) {
-		printFormattedTime(1234);
-		calculatePolynom();
-	}
+public class A8_polynomCalc {
 	
-	/**
-	 * Prints time in hours, minutes and seconds (h:m:s)
-	 * @param seconds time in seconds
-	 */
-	public static void printFormattedTime(int seconds) {
-		int hours = seconds / 3600;
-		int rem = seconds - 3600*hours;
-		int minutes = rem / 60;
-		int printSeconds = rem - 60*minutes;
-		System.out.println(hours + ":" + minutes + ":" + printSeconds);
+	public static void main(String[] args) {
+		
 	}
 	
 	/**
@@ -43,6 +31,4 @@ public class Chapter2 {
 		double y = a * Math.pow(x, 3) + b * Math.pow(x, 2) + c * x + d;
 		System.out.println(y + " = " + a + "*x^3 + " + b + "*x^2 + " + c + "*x + " + d);
 	}
-	
-	
 }

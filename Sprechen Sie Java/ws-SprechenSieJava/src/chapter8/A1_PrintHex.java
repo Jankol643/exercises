@@ -1,12 +1,11 @@
-package sprechenSieJava;
+package chapter8;
 
 import java.nio.charset.Charset;
 
-public class Chapter8 {
+public class A1_PrintHex {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		printHex(3000);
+
 	}
 	
 	/**

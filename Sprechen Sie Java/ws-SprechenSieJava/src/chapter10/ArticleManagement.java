@@ -1,4 +1,4 @@
-package sprechenSieJava.Chapter10;
+package chapter10;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,12 +1,12 @@
-package sprechenSieJava;
+package chapter9;
 
 import java.util.Scanner;
 
-public class Chapter9 {
+public class A4_EncodeRunLengthEncoding {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		encodeStringRLE();
+
 	}
 	
 	/**
