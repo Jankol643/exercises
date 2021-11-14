@@ -142,7 +142,14 @@ def get_difficulty(file, index, soup):
 
 
 def get_creation_date(filename):
-    """Gets the last created timestamp of the file."""
+    """
+    Gets the creation date and time of a file
+
+    :param filename: path to file
+    :type filename: string
+    :return: creation time of file or on Linux last modification time
+    :rtype: datetime
+    """
     if platform.system() == 'Windows':
         ts = os.stat(filename).st_ctime
     elif platform.system() == 'Darwin':  # Mac OS
@@ -178,10 +185,10 @@ def get_solved_date(file):
         global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
         return str(date)
     elif global_vars.DATE == 'last modified':
-        args = ["git pull"]
+        args = ['git', 'pull']
         subprocess.Popen(args, stdout=subprocess.PIPE)
 
-        args = ['git log', '--follow', '-p', '-- ' + "\"" + file + "\""]
+        args = ['git', 'log', '--follow', '-p', '-- ' + "\"" + file + "\""]
         p = subprocess.check_output(args, cwd=global_vars.PROBLEMS)
 
         p = p.decode('utf-8')
@@ -193,7 +200,7 @@ def get_solved_date(file):
         global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
         return str(dt)
     elif global_vars.DATE == 'first commit':
-        args = ['git log', '--diff-filter=A', '--follow', '--format=%aI', '-1', '-p', '-- ' + "\"" + file + "\""]
+        args = ['git', 'log', '--diff-filter=A', '--follow', '--format=%aI', '-1', '-p', '-- ' + "\"" + file + "\""]
         date = subprocess.check_output(args, cwd=global_vars.PROBLEMS)
         date = date.decode('utf-8')
         date = date.split('\n')[0]
