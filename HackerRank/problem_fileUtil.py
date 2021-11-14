@@ -1,12 +1,14 @@
-import os
-import re  # for sorting files
-import subprocess
-import sys
+import os # for checking if path exists
+import re  # for importing module
+import subprocess # for getting newest files
+import sys # for appending to path
+import platform # for detecting os
+from datetime import datetime # for converting to datetime
 
-from global_vars import FOLDER, PROBLEMS, SHEBANG, DIFFICULTY_PROMPT, FILE_LINK_BEGINNING
-from internet import get_problem_link_HTML
+import global_vars # for global variables
+from internet import get_problem_link_HTML # for getting problem link from HTML
 
-FILE_LIST = FOLDER + '/' + 'file_list.txt'
+FILE_LIST = global_vars.FOLDER + '/' + 'file_list.txt'
 MISC_PATH = '.\\..\\..\\Misc\\'
 LINK_LINE_NUMBER = 2  # link should be written on second line of file
 DIFFICULTY_LINE_NUMBER = 3  # difficulty should be written on third line of file
@@ -51,7 +53,7 @@ def append_files_to_filelist():
     """
     result = list()
     file_extensions = ['.java', '.py']
-    for root, _, files in os.walk(PROBLEMS):
+    for root, _, files in os.walk(global_vars.PROBLEMS):
         for entry in files:
             for ext in file_extensions:
                 if entry.endswith(ext):
@@ -115,7 +117,7 @@ def correct_file_link(file_path, html_link):
     import_module(MISC_PATH)
     import fileUtil
     lines = fileUtil.read_file_to_list(file_path, True)
-    if lines[LINK_LINE_NUMBER - 1].startswith(FILE_LINK_BEGINNING):
+    if lines[LINK_LINE_NUMBER - 1].startswith(global_vars.FILE_LINK_BEGINNING):
         lines[LINK_LINE_NUMBER - 1] = '#' + str(html_link)
     with open(file_path, 'w') as f:
         for line in lines:
@@ -143,7 +145,7 @@ def check_links_equal(file_path, lines, index):
         return link, success
     else: # could not get link from HTML file
         link = file_link[1:]  # remove comment sign ('#') from link
-        if link.startswith(FILE_LINK_BEGINNING):
+        if link.startswith(global_vars.FILE_LINK_BEGINNING):
             success = True
         else:
             success = False
@@ -161,8 +163,8 @@ def get_write_problem_link(file_path, index):
     import fileUtil
     lines = fileUtil.read_file_to_list(file_path, True)
     if len(lines) > 1:
-        if lines[0] == SHEBANG:
-            if not lines[1].startswith(FILE_LINK_BEGINNING):
+        if lines[0] == global_vars.SHEBANG:
+            if not lines[1].startswith(global_vars.FILE_LINK_BEGINNING):
                 html_link, success = get_problem_link_HTML(index, file_path)
                 if success is True:
                     write_link = '#' + html_link
@@ -176,7 +178,7 @@ def get_write_problem_link(file_path, index):
             import_module(MISC_PATH)
             import fileUtil
             fileUtil.write_shebang(file_path, 3)
-            if lines[1].startswith(FILE_LINK_BEGINNING):
+            if lines[1].startswith(global_vars.FILE_LINK_BEGINNING):
                 # second line is a link
                 link, success = check_links_equal(file_path, lines, index)
                 return link, success
@@ -205,7 +207,7 @@ def delete_excess_metainfo(file):
     :rtype: list
     """
     file_lines = list()
-    metainfo = [DIFFICULTY_PROMPT, FILE_LINK_BEGINNING]
+    metainfo = [global_vars.DIFFICULTY_PROMPT, global_vars.FILE_LINK_BEGINNING]
     found = False
     changed = False
     metainfo_tuple = tuple(metainfo)
@@ -222,7 +224,7 @@ def delete_excess_metainfo(file):
             found = True
             index = file_lines.index(line)
     # difficulty is on wrong line
-    if not file_lines[DIFFICULTY_LINE_NUMBER - 1].startswith(DIFFICULTY_PROMPT):
+    if not file_lines[DIFFICULTY_LINE_NUMBER - 1].startswith(global_vars.DIFFICULTY_PROMPT):
         changed = True
         file_lines[DIFFICULTY_LINE_NUMBER - 1] = file_lines[index]
         file_lines.remove(file_lines[index])
@@ -252,7 +254,7 @@ def get_file_difficulty(file):
     except IOError:
         return None
     difficulty = file_lines[DIFFICULTY_LINE_NUMBER - 1]
-    if difficulty.startswith(DIFFICULTY_PROMPT):
+    if difficulty.startswith(global_vars.DIFFICULTY_PROMPT):
         difficulty = difficulty.rstrip('\n')
         file_difficulty = difficulty[14:]
         return file_difficulty
@@ -271,9 +273,34 @@ def correct_file_difficulty(file, correct_difficulty):
     import_module(MISC_PATH)
     import fileUtil
     lines = fileUtil.read_file_to_list(file, True)
-    if lines[DIFFICULTY_LINE_NUMBER - 1].startswith(DIFFICULTY_PROMPT):
-        lines[DIFFICULTY_LINE_NUMBER - 1] = DIFFICULTY_PROMPT + \
+    if lines[DIFFICULTY_LINE_NUMBER - 1].startswith(global_vars.DIFFICULTY_PROMPT):
+        lines[DIFFICULTY_LINE_NUMBER - 1] = global_vars.DIFFICULTY_PROMPT + \
             str(correct_difficulty)
     with open(file, 'w') as f:
         for line in lines:
             f.write(line + '\n')
+
+def get_creation_date(filename):
+    """
+    Gets the creation date and time of a file
+
+    :param filename: path to file
+    :type filename: string
+    :return: creation time of file or on Linux last modification time
+    :rtype: datetime
+    """
+    if platform.system() == 'Windows':
+        ts = os.stat(filename).st_ctime
+    elif platform.system() == 'Darwin':  # Mac OS
+        ts = os.stat(filename).st_birthtime
+    elif platform.system() == 'Linux':
+        # We're probably on Linux. No easy way to get creation dates here,
+        # so we'll settle for when its content was last modified.
+        ts = os.stat(filename).st_mtime  # linux
+    else:
+        # cannot determine os
+        ts = os.stat(filename).st_ctime
+    ts = datetime.fromtimestamp(ts)
+    temp = datetime.strftime(ts, global_vars.DATETIME_FORMAT)
+    ts = datetime.strptime(temp, global_vars.DATETIME_FORMAT)
+    return ts
