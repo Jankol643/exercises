@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#https://www.hackerrank.com/challenges/30-bitwise-and
+#https://www.hackerrank.com/challenges/30-generics
 # Difficulty: Easy
 
 import java.util.*;

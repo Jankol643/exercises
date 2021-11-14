@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#https://www.hackerrank.com/challenges/30-regex-patterns
+#https://www.hackerrank.com/challenges/30-bitwise-and
 # Difficulty: Medium
 
 #

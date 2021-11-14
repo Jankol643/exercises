@@ -2,7 +2,6 @@
 #https://www.hackerrank.com/challenges/30-exceptions-string-to-integer
 # Difficulty: Easy
 
-
 # deleted '__name__ == "__main__"' because first word of line must not be used
 
 def toInteger(S):

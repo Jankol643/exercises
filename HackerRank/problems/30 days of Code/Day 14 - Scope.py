@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# https://www.hackerrank.com/challenges/30-scope
+#https://www.hackerrank.com/challenges/30-scope
 # Difficulty: Easy
 
 class Difference():

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#https://www.hackerrank.com/challenges/30-binary-trees
+#https://www.hackerrank.com/challenges/30-linked-list-deletion
 # Difficulty: Easy
 
 class Node:
