@@ -166,3 +166,4 @@ quelltext
 *.zip
 test[0-9]*.py
 file_list.txt
+.metadata
