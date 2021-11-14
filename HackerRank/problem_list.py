@@ -1,16 +1,13 @@
 import os
 import subprocess
-from datetime import datetime as DateTime
-from file import get_file_difficulty
+from datetime import datetime
 import global_vars
-from file import get_code_files, get_write_problem_link, correct_file_difficulty, write_string_to_file, DIFFICULTY_LINE_NUMBER
+import problem_fileUtil
 from internet import get_HTML_path, get_domains
 import platform  # for determinating file creation date
 import git  # for checking if there are uncommitted files
 from bs4 import BeautifulSoup
 import time  # for calculating execution time
-import pandas
-import re
 
 
 def files_to_push():
@@ -65,14 +62,15 @@ def process_problems():
     """
     errors = list()
     problem_list = list()
-    file_paths = get_code_files()
+    file_paths = problem_fileUtil.get_code_files()
     running_id = 0
     length = len(file_paths)
     for file in file_paths:
         index = file_paths.index(file)
         print("Converting file " + str(index) + " of " + str(length))
+        problem_fileUtil.delete_excess_metainfo(file)
         get_write_problem_link_time_start = time.perf_counter_ns()
-        link, success = get_write_problem_link(file, index)
+        link, success = problem_fileUtil.get_write_problem_link(file, index)
         get_write_problem_link_time_end = time.perf_counter_ns()
         total_time = get_write_problem_link_time_end - get_write_problem_link_time_start
         global_vars.GET_WRITE_PROBLEM_LINK_TIMES.append(total_time)
@@ -114,7 +112,7 @@ def get_difficulty(file, index, soup):
     get_difficulty_start = time.perf_counter_ns()
     print("Get difficulty for " + file + "...")
     found = False
-    file_difficulty = get_file_difficulty(file)
+    file_difficulty = problem_fileUtil.get_file_difficulty(file)
     if file_difficulty is not None:
         found = True
     # search for difficulty in HTML file
@@ -123,7 +121,7 @@ def get_difficulty(file, index, soup):
         first_child = next(div.children, None)
         html_difficulty = first_child.text.strip()
         if html_difficulty != file_difficulty:
-            correct_file_difficulty(file, html_difficulty)
+            problem_fileUtil.correct_file_difficulty(file, html_difficulty)
         get_difficulty_end = time.perf_counter_ns()
         time_spent = get_difficulty_end - get_difficulty_start
         global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
@@ -134,89 +132,66 @@ def get_difficulty(file, index, soup):
         first_child = next(div.children, None)
         html_difficulty = first_child.text.strip()
         write_difficulty = global_vars.DIFFICULTY_PROMPT + html_difficulty + '\n'
-        write_string_to_file(file, write_difficulty, DIFFICULTY_LINE_NUMBER)
+        problem_fileUtil.write_string_to_file(file, write_difficulty, problem_fileUtil.DIFFICULTY_LINE_NUMBER)
         get_difficulty_end = time.perf_counter_ns()
         time_spent = get_difficulty_end - get_difficulty_start
         global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
         return html_difficulty
 
 
-def get_creation_date(filename):
-    """
-    Gets the creation date and time of a file
-
-    :param filename: path to file
-    :type filename: string
-    :return: creation time of file or on Linux last modification time
-    :rtype: datetime
-    """
-    if platform.system() == 'Windows':
-        ts = os.stat(filename).st_ctime
-    elif platform.system() == 'Darwin':  # Mac OS
-        ts = os.stat(filename).st_birthtime
-    elif platform.system() == 'Linux':
-        # We're probably on Linux. No easy way to get creation dates here,
-        # so we'll settle for when its content was last modified.
-        ts = os.stat(filename).st_mtime  # linux
-    else:
-        # cannot determine os
-        ts = os.stat(filename).st_ctime
-    ts = DateTime.fromtimestamp(ts)
-    temp = DateTime.strftime(ts, global_vars.DATETIME_FORMAT)
-    ts = DateTime.strptime(temp, global_vars.DATETIME_FORMAT)
-    return ts
-
-
 def get_solved_date(file):
     """
-    Get the date the HackerRank problem was solved
+    Get the solved date of the given file
 
-    :string file: file to calculate solved date of
-    :returns: solved date (string)
+    :param file: path to problem file
+    :type file: string
+    :raises ValueError: when wrong datetype is specified (in global constant)
+    :return: solved date of problem file
+    :rtype: datetime
     """
     get_solved_date_start = time.perf_counter_ns()
     print("Get solved date for file " + file)
     if global_vars.DATE not in ['creation', 'last modification', 'first commit']:
         raise ValueError()
     if global_vars.DATE == 'creation':
-        date = get_creation_date(file)
+        date = problem_fileUtil.get_creation_date(file)
         get_solved_date_end = time.perf_counter_ns()
         time_spent = get_solved_date_end - get_solved_date_start
         global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
-        return str(date)
+        return date
     elif global_vars.DATE == 'last modified':
         args = ['git', 'pull']
         subprocess.Popen(args, stdout=subprocess.PIPE)
 
-        args = ['git', 'log', '--follow', '-p', '-- ' + "\"" + file + "\""]
+        args = ['git', 'log', '--follow', '-- ' + "\"" + file + "\""]
         p = subprocess.check_output(args, cwd=global_vars.PROBLEMS)
 
         p = p.decode('utf-8')
         p = p.split('\n')[2]
         p = p[8:]
-        dt = DateTime.strptime(p, global_vars.DATETIME_FORMAT)
+        dt = datetime.strptime(p, global_vars.DATETIME_FORMAT)
         get_solved_date_end = time.perf_counter_ns()
         time_spent = get_solved_date_end - get_solved_date_start
         global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
-        return str(dt)
+        return dt
     elif global_vars.DATE == 'first commit':
-        args = ['git', 'log', '--diff-filter=A', '--follow', '--format=%aI', '-1', '-p', '-- ' + "\"" + file + "\""]
-        date = subprocess.check_output(args, cwd=global_vars.PROBLEMS)
-        date = date.decode('utf-8')
-        date = date.split('\n')[0]
-        length = len(date)
-        date = date[0:-3] + date[-2:]  # delete colon between timezone
-        length = len(date)
+        command = 'git log --diff-filter=A --follow --format=%aI -1 -- ' + "\"" + file + "\""
+        date = subprocess.check_output(command, cwd=global_vars.PROBLEMS)
+        temp = date.decode('utf-8')
+        temp = temp.split('\n')[0]
+        length = len(temp)
+        temp = temp[0:-3] + temp[-2:]  # delete colon between timezone
+        length = len(temp)
         for i in range(length):
-            if(date[i] == 'T'):
+            if(temp[i] == 'T'):
                 # replace T with space and cut timezone
-                date = date[0:i] + ' ' + date[i + 1:length-5]
+                temp = temp[0:i] + ' ' + temp[i + 1:length-5]
                 break
-        date_obj = DateTime.strptime(date, global_vars.DATETIME_FORMAT)
+        date_obj = datetime.strptime(temp, global_vars.DATETIME_FORMAT)
         get_solved_date_end = time.perf_counter_ns()
         time_spent = get_solved_date_end - get_solved_date_start
         global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
-        return str(date_obj)
+        return date_obj
 
 
 def get_instructions(file):
@@ -288,7 +263,7 @@ def print_statistics(total_time):
     print('--------------------------------------------------------------------------------')
     execution_time_script = round(total_time / nano, precision)
     print("Execution time of script:", execution_time_script, "s")
-    file_list = get_code_files()
+    file_list = problem_fileUtil.get_code_files()
     no_files = len(file_list)
     time_per_file = round(total_time / no_files / nano, precision)
     print("Execution time per file", time_per_file, "s")
@@ -325,15 +300,7 @@ def print_statistics(total_time):
         total_get_instructions_time / no_files / nano, precision)
     print("Average time to get instructions:", avg_get_instructions_time, "s")
 
-def convert_to_html_table():
-    csv_filename = 'items.csv'
-    html_filename = 'problem_list2.html'
-    html_file = open(html_filename, 'w')
-    html_file.close()
-    df = pandas.read_csv(csv_filename, index_col=0, delimiter=',')
-    print(df)
-    df.drop(index=[0, 1])
-    df.to_html(html_filename)
+
 
 def main():
     total_time_start = time.perf_counter_ns()
@@ -343,6 +310,5 @@ def main():
     total_time_end = time.perf_counter_ns()
     total_time = total_time_end - total_time_start
     print_statistics(total_time)
-    convert_to_html_table()
 
 main()
