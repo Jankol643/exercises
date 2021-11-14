@@ -167,3 +167,7 @@ quelltext
 test[0-9]*.py
 file_list.txt
 .metadata
+bin
+.classpath
+.project
+.settings
