@@ -17,13 +17,13 @@ public class Ex02_NumberAsText {
 
         int remainingValue = n;
         String valueAsText = "";
-
-        while (remainingValue > 0) {
-            int remainder = remainingValue % 10;
+        int temp = n;
+        while (temp > 0) {
+            int remainder = temp % 10;
             String remainderAsText = digitAsText(remainder); // convert last digit to text
             valueAsText = remainderAsText + " " + valueAsText;
 
-            remainingValue = remainingValue / 10;
+            temp = temp / 10;
         }
 
         return valueAsText.trim();

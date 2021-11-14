@@ -28,8 +28,6 @@ public class Ex03_PerfectNumbers {
                 sumOfMultipliers += i;
         }
 
-        if (sumOfMultipliers == number)
-            return true;
-        return false;
+        return sumOfMultipliers == number;
     }
 }

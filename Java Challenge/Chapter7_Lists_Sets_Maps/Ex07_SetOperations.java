@@ -26,7 +26,7 @@ public class Ex07_SetOperations {
         Set<T> result = new HashSet<>();
         for (T elem1 : collection1) {
             for (T elem2 : collection2) {
-                if (elem1 == elem2)
+                if (elem1.equals(elem2))
                     result.add(elem1);
             }
         }

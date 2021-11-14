@@ -25,7 +25,8 @@ public class Ex01_NumberConversions {
 
     static int binaryToDecimal(String str) {
         int decimal = 0;
-        if (isBinaryNumber(str) == true) {
+        boolean isBinary = isBinaryNumber(str);
+        if (isBinary) {
             int number = Integer.valueOf(str);
             int tmp = 0;
             int count = 0;
@@ -42,14 +43,14 @@ public class Ex01_NumberConversions {
 
     static int hexToDecimal(String hexString) {
         String hstring = "0123456789ABCDEF";
-        hexString = hexString.toUpperCase();
-        for (int i = 0; i < hexString.length(); i++) {
-            if (hstring.indexOf(hexString.charAt(i)) == -1)
-                throw new IllegalArgumentException("Entered number" + hexString + " is not a valid hexadecimal number");
+        String hexStringUpper = hexString.toUpperCase();
+        for (int i = 0; i < hexStringUpper.length(); i++) {
+            if (hstring.indexOf(hexStringUpper.charAt(i)) == -1)
+                throw new IllegalArgumentException("Entered number" + hexStringUpper + " is not a valid hexadecimal number");
         }
         int num = 0;
-        for (int i = 0; i < hexString.length(); i++) {
-            char ch = hexString.charAt(i);
+        for (int i = 0; i < hexStringUpper.length(); i++) {
+            char ch = hexStringUpper.charAt(i);
             int n = hstring.indexOf(ch);
             num = 16 * num + n;
         }
