@@ -193,7 +193,7 @@ def get_write_problem_link(file_path, index):
         return link, success
 
 
-def delete_excess_metainfo(file_lines, file):
+def delete_excess_metainfo(file):
     """
     Checks for duplicate metainfo in the file and removes it
 
@@ -204,10 +204,15 @@ def delete_excess_metainfo(file_lines, file):
     :return: lines of file without duplicate metainfo
     :rtype: list
     """
+    file_lines = list()
     metainfo = [DIFFICULTY_PROMPT, FILE_LINK_BEGINNING]
     found = False
     changed = False
     metainfo_tuple = tuple(metainfo)
+    with open(file, 'r') as f:
+        for line in f:
+            file_lines.append(line)
+
     for line in file_lines:
         if line.startswith(metainfo_tuple):
             if found is True:
