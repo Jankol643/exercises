@@ -2,7 +2,7 @@ package chapter2;
 
 import java.util.Scanner;
 
-public class A9_CalcDistance {
+public class A9CalcDistance {
 
 	public static void main(String[] args) {
 		calcDistance();
