@@ -2,7 +2,7 @@ package chapter4;
 
 import java.util.Scanner;
 
-public class A2_NumberDigits {
+public class A2NumberDigits {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
