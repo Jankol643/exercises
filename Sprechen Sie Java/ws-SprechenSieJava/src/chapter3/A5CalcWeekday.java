@@ -2,7 +2,7 @@ package chapter3;
 
 import java.util.Scanner;
 
-public class A5_CalcWeekday {
+public class A5CalcWeekday {
 
 	public static void main(String[] args) {
 
