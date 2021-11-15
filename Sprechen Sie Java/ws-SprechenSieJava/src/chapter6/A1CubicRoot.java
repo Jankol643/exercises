@@ -1,6 +1,6 @@
 package chapter6;
 
-public class A1_CubicRoot {
+public class A1CubicRoot {
 	public static void main(String[] args) {
 
 	}

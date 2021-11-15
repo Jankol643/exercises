@@ -2,7 +2,7 @@ package chapter4;
 
 import java.util.Scanner;
 
-public class A3_DigitSum {
+public class A2NumberDigits {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -10,23 +10,25 @@ public class A3_DigitSum {
 	}
 	
 	/**
-	 * Reads an integer and calculates the digit sum
+	 * Calculates the number of digits of a positive integer
 	 * 
-	 * @return digit sum of positive integer
+	 * @return number of digits
 	 */
-	public static int digitSum() {
+	public static int noDigits() {
 		Scanner sc = new Scanner(System.in);
 		System.out.print("Please enter a positive integer: ");
 		int n = sc.nextInt();
 		sc.close();
 
-		if (n >= 0) {
-			int digitSum = 0;
-			while (n > 0) {
-				digitSum = digitSum + n % 10;
-				n = n / 10;
+		if (n >= 0) { // positive integer
+			int digits = 1;
+			int rem = n;
+			while (rem > 10) {
+				rem = (int) (rem / 10);
+				digits += 1;
 			}
-			return digitSum;
+			return digits;
+
 		} else { // negative integer
 			throw new ArithmeticException("Number has to be a positive integer");
 		}

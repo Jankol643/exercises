@@ -1,6 +1,6 @@
 package chapter5;
 
-public class A1_CalcPi {
+public class A1CalcPi {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

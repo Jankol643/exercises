@@ -2,7 +2,7 @@ package chapter3;
 
 import java.util.Scanner;
 
-public class A1_ValueComparison {
+public class A1ValueComparison {
 
 	public static void main(String[] args) {
 		valueComps();

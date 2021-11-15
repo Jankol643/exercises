@@ -4,7 +4,7 @@ package chapter2;
  * @author janko
  *
  */
-public class A7_TimeCalculation {
+public class A7TimeCalculation {
 
 	/**
 	 * @param args

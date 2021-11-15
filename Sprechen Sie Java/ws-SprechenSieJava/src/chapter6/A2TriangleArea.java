@@ -1,6 +1,6 @@
 package chapter6;
 
-public class A2_TriangleArea {
+public class A2TriangleArea {
 
 	public static void main(String[] args) {
 

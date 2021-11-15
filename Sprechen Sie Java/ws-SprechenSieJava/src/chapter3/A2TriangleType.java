@@ -2,7 +2,7 @@ package chapter3;
 
 import java.util.Scanner;
 
-public class A2_TriangleType {
+public class A2TriangleType {
 
 	public static void main(String[] args) {
 

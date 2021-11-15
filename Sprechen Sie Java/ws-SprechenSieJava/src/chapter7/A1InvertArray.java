@@ -1,6 +1,6 @@
 package chapter7;
 
-public class A1_InvertArray {
+public class A1InvertArray {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

@@ -2,7 +2,7 @@ package chapter4;
 
 import java.util.Scanner;
 
-public class A5_BinarySet {
+public class A5BinarySet {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

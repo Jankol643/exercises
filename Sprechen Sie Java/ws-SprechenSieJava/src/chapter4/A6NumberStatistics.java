@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-public class A6_NumberStatistics {
+public class A6NumberStatistics {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
