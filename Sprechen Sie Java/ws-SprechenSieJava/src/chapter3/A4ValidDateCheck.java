@@ -2,7 +2,7 @@ package chapter3;
 
 import java.util.Scanner;
 
-public class A4_ValidDateCheck {
+public class A4ValidDateCheck {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
