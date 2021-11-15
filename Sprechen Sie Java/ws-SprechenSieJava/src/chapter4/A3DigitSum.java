@@ -2,7 +2,7 @@ package chapter4;
 
 import java.util.Scanner;
 
-public class A3_DigitSum {
+public class A3DigitSum {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
