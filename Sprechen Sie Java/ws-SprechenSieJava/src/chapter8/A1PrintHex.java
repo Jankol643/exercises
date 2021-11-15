@@ -2,7 +2,7 @@ package chapter8;
 
 import java.nio.charset.Charset;
 
-public class A1_PrintHex {
+public class A1PrintHex {
 
 	public static void main(String[] args) {
 
