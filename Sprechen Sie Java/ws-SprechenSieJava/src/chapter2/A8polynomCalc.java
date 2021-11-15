@@ -2,7 +2,7 @@ package chapter2;
 
 import java.util.Scanner;
 
-public class A8_polynomCalc {
+public class A8polynomCalc {
 	
 	public static void main(String[] args) {
 		
