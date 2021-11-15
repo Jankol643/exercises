@@ -1,6 +1,6 @@
 package chapter7;
 
-public class A14_ArraySumIterator {
+public class A14ArraySumIterator {
 
 	public static void main(String[] args) {
 
