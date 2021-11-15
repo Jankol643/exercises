@@ -1,6 +1,6 @@
 package chapter7;
 
-public class A16_CalcPoly {
+public class A16CalcPoly {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
