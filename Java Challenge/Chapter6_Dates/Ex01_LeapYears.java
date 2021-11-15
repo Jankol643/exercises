@@ -7,9 +7,9 @@ public class Ex01_LeapYears {
     }
 
     static boolean isLeap(int year) {
-        if (year % 4 == 0 && year % 100 != 0)
-            return true;
-        if (year % 4 == 0 && year % 400 == 0)
+        boolean leap1 = year % 4 == 0 && year % 100 != 0;
+        boolean leap2 = year % 4 == 0 && year % 400 == 0;
+        if (leap1 || leap2)
             return true;
         return false;
     }
