@@ -3,7 +3,7 @@ package chapter4;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class A7_PrimeFactorization {
+public class A7PrimeFactorization {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
