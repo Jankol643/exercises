@@ -53,7 +53,7 @@ def append_files_to_filelist():
     """
     result = list()
     file_extensions = ['.java', '.py']
-    for root, _, files in os.walk(global_vars.PROBLEMS):
+    for _, _, files in os.walk(global_vars.PROBLEMS):
         for entry in files:
             for ext in file_extensions:
                 if entry.endswith(ext):
@@ -122,7 +122,7 @@ def correct_file_link(file_path, html_link):
     with open(file_path, 'w') as f:
         for line in lines:
             f.write(line + '\n')
-    
+
 
 def check_links_equal(file_path, lines, index):
     """
