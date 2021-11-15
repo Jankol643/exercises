@@ -1,6 +1,6 @@
 package chapter7;
 
-public class A15_MaxParams {
+public class A15MaxParams {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
