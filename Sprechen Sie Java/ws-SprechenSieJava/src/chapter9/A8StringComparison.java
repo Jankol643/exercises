@@ -1,6 +1,6 @@
 package chapter9;
 
-public class A8_StringComparison {
+public class A8StringComparison {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
