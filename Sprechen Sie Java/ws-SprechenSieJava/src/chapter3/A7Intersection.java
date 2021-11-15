@@ -2,7 +2,7 @@ package chapter3;
 
 import java.util.Scanner;
 
-public class A7_Intersection {
+public class A7Intersection {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
