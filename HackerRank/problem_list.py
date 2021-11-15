@@ -4,7 +4,6 @@ from datetime import datetime
 import global_vars
 import problem_fileUtil
 from internet import get_HTML_path, get_domains
-import platform  # for determinating file creation date
 import git  # for checking if there are uncommitted files
 from bs4 import BeautifulSoup
 import time  # for calculating execution time
