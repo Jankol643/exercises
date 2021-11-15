@@ -1,6 +1,6 @@
 package chapter6;
 
-public class A3_BinToDec {
+public class A3BinToDec {
 
 	public static void main(String[] args) {
 
