@@ -1,6 +1,6 @@
 package chapter5;
 
-public class A2_CalcArcSin {
+public class A2CalcArcSin {
 	
     public static void main(String[] args) {
 
