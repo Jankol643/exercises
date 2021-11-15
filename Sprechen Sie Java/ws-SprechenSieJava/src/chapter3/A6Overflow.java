@@ -1,6 +1,6 @@
 package chapter3;
 
-public class A6_Overflow {
+public class A6Overflow {
 	public static void main(String[] args) {
 		
 	}
