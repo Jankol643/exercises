@@ -1,6 +1,6 @@
 package chapter7;
 
-public class A13_NegativeValsIterator {
+public class A13NegativeValsIterator {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
