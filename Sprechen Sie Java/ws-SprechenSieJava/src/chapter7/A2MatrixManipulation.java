@@ -2,7 +2,7 @@ package chapter7;
 
 import java.util.Scanner;
 
-public class A2_MatrixManipulation {
+public class A2MatrixManipulation {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
