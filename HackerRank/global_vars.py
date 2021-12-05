@@ -1,9 +1,12 @@
 import os
 
-FOLDER = os.path.dirname(os.path.abspath(__file__))
+FOLDER = os.path.dirname(os.path.relpath(__file__))
 PROBLEMS = FOLDER + os.path.sep + 'problems' + os.path.sep
 DATAPATH = FOLDER + os.path.sep + 'items.csv'
 FILE_LIST = FOLDER + os.path.sep + 'file_list.txt'
+HTML_FOLDER = FOLDER + os.path.sep + 'HTML' + os.path.sep
+SPECIAL_FILE = 'Generics.java'
+FILE_BEFORE_SPECIAL = 'Sorting.py'
 SHEBANG = '#!/usr/bin/env python3'
 # what date should be set as solved date
 DATE = 'first commit'
