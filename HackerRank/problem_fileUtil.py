@@ -1,12 +1,13 @@
-import os # for checking if path exists
+import os  # for checking if path exists
 import re  # for importing module
-import subprocess # for getting newest files
-import sys # for appending to path
-import platform # for detecting os
-from datetime import datetime # for converting to datetime
+import subprocess  # for getting newest files
+import sys  # for appending to path
+import platform  # for detecting os
+from datetime import datetime  # for converting to datetime
+from global_vars import HTML_FOLDER, FILE_BEFORE_SPECIAL, SPECIAL_FILE
 
-import global_vars # for global variables
-from internet import get_problem_link_HTML # for getting problem link from HTML
+import global_vars  # for global variables
+from internet import get_problem_link_HTML  # for getting problem link from HTML
 
 FILE_LIST = global_vars.FOLDER + '/' + 'file_list.txt'
 MISC_PATH = '.\\..\\..\\Misc\\'
@@ -52,12 +53,28 @@ def append_files_to_filelist():
     :rtype: list
     """
     result = list()
-    file_extensions = ['.java', '.py']
-    for _, _, files in os.walk(global_vars.PROBLEMS):
+    file_extensions = ['.java', '.py', '.sql']
+    for root, _, files in os.walk(global_vars.PROBLEMS):
         for entry in files:
             for ext in file_extensions:
                 if entry.endswith(ext):
-                    result.append(entry)
+                    path = os.path.join(root, entry)
+                    result.append(path)
+    # ensure that java file with no index in filename is correctly inserted
+    import_module(MISC_PATH)
+    import masterUtil
+    result = masterUtil.sort_logically(result)
+
+    for file in result:
+        if SPECIAL_FILE in file:
+            result.remove(file)
+        if FILE_BEFORE_SPECIAL in file:
+            idx = result.index(file)
+            folder_path = file.split(os.path.sep)[0:-1]
+            separator = os.path.sep
+            folder_path = separator.join(folder_path)
+            java_file_path = folder_path + os.path.sep + SPECIAL_FILE
+            result.insert(idx + 1, java_file_path)
     return result
 
 
@@ -71,25 +88,13 @@ def get_code_files():
     subprocess.Popen(args, stdout=subprocess.PIPE)
     result = list()
 
-    import_module(MISC_PATH)
-    if (os.path.exists(FILE_LIST)):
-        with open(FILE_LIST, 'r') as f:
-            for line in f:
-                line = line.replace('\n', '')
-                result.append(line)
-    else:
+    def write_new_filelist():
         result = append_files_to_filelist()
-        import masterUtil
-        result = masterUtil.sort_logically(result)
-        # ensure that java file with no index in filename is correctly inserted
-        java_file_path = result[-1]
-        result.remove(java_file_path)
-        result.insert(21, java_file_path)
 
         with open(FILE_LIST, 'w') as f:
             for res in result:
                 f.write(res + '\n')
-    return result
+        return result
 
 
 def write_string_to_file(file_path, string, line_no):
@@ -143,7 +148,7 @@ def check_links_equal(file_path, lines, index):
             correct_file_link(file_path, html_link)
             link = html_link
         return link, success
-    else: # could not get link from HTML file
+    else:  # could not get link from HTML file
         link = file_link[1:]  # remove comment sign ('#') from link
         if link.startswith(global_vars.FILE_LINK_BEGINNING):
             success = True
@@ -279,6 +284,7 @@ def correct_file_difficulty(file, correct_difficulty):
     with open(file, 'w') as f:
         for line in lines:
             f.write(line + '\n')
+
 
 def get_creation_date(filename):
     """
