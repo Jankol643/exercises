@@ -1,23 +1,25 @@
 import os
 from bs4 import BeautifulSoup  # for getting HTML elements of website
 
-from global_vars import FOLDER
+from global_vars import HTML_FOLDER
 
-def get_HTML_path(code_folder):
+def get_HTML_path(file_path):
     # get correct HTML file
-    html_file_name = code_folder + ".html"
-    subfolder = ['HTML']
-    subfolder = os.path.join(*subfolder)
-    folder = FOLDER + os.path.sep + subfolder
-    html_file_path = None
-    for path in os.listdir(folder):
-        full_path = os.path.join(folder, path)
+    splitted_path = file_path.split(os.path.sep)
+    domain = splitted_path[-3]
+    subdomain = splitted_path[-2] # penultimate element in file path
+    if domain == 'Tutorials' and subdomain == '30 days of Code':
+        html_file_path = os.path.join(HTML_FOLDER, domain, subdomain + ".html")
+    else:
+        html_file_path = os.path.join(HTML_FOLDER, domain + ".html")
+    for path in os.listdir(HTML_FOLDER):
+        full_path = os.path.join(HTML_FOLDER, path)
         if os.path.isfile(full_path):
             if path.endswith('.html'):
-                if path == html_file_name:
+                if path == html_file_path:
                     html_file_path = full_path
                     return html_file_path
-    return html_file_path
+    return None
 
 
 def get_problem_link_HTML(index, file_path):
@@ -33,25 +35,22 @@ def get_problem_link_HTML(index, file_path):
     :return: link to problem description on the internet or None, success
     :rtype: string, None, True/False
     """
-    print("Get link for file " + str(index) + "(" + str(file_path) + ")" + " ...")
-    splitted_path = file_path.split(os.path.sep)
-    code_folder = splitted_path[len(splitted_path) - 2] # penultimate element in file path
-    html_file_path = get_HTML_path(code_folder)
+    print("Get link for file " + str(index) + " (" + str(file_path) + ")" + " ...")
+    html_file_path = get_HTML_path(file_path)
     link = None
     if html_file_path is not None:
         # search for link
+        filename = file_path.split(os.path.sep)[-1]
         open_html_file = open(html_file_path, 'r')
         soup = BeautifulSoup(open_html_file, 'html.parser')
-        if code_folder == '30 days of Code':
-            challenge_list_items = soup.find_all('a', attrs={'class': 'challenge-list-item'})
-            for item in challenge_list_items:
-                item_index = challenge_list_items.index(item)
-                if index == item_index:
-                    link = challenge_list_items[item_index]['href']
-                    break
-        else:
-            open_html_file.close()
-            raise NotImplementedError("Support for " + code_folder + " hasn´t been implemented yet.")
+        challenge_list_items = soup.find_all('a', attrs={'class': 'challenge-list-item'})
+        challenge_titles = soup.find_all(class_='challengecard-title')
+        for item in challenge_list_items:
+            item_index = challenge_list_items.index(item)
+            file_name_html = challenge_titles[item_index].string
+            if filename.lower() in file_name_html.lower():
+                link = challenge_list_items[item_index]['href']
+                break
 
         open_html_file.close()
         if link is not None:
@@ -62,7 +61,7 @@ def get_problem_link_HTML(index, file_path):
             success = False
             return link, success
     else: # HTML file not found
-        raise FileNotFoundError("Corresponding HTML file for " + code_folder + " wasn´t found.")
+        raise FileNotFoundError("Corresponding HTML file for " + file_path + " wasn´t found.")
 
 def get_domains(file, soup):
     """
