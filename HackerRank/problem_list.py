@@ -59,6 +59,7 @@ def process_problems():
     """
     Converts all problems to objects
     """
+    problem_fileUtil.clean_HTML_folder()
     errors = list()
     problem_list = list()
     file_paths = problem_fileUtil.get_code_files()
@@ -131,7 +132,8 @@ def get_difficulty(file, index, soup):
         first_child = next(div.children, None)
         html_difficulty = first_child.text.strip()
         write_difficulty = global_vars.DIFFICULTY_PROMPT + html_difficulty + '\n'
-        problem_fileUtil.write_string_to_file(file, write_difficulty, problem_fileUtil.DIFFICULTY_LINE_NUMBER)
+        problem_fileUtil.write_string_to_file(
+            file, write_difficulty, problem_fileUtil.DIFFICULTY_LINE_NUMBER)
         get_difficulty_end = time.perf_counter_ns()
         time_spent = get_difficulty_end - get_difficulty_start
         global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
@@ -204,15 +206,18 @@ def get_instructions(file):
     file_name = file.split(os.path.sep)[-1]
     file_name_no_ext = os.path.splitext(file_name)[0]
     # link java file to correct instruction
-    if file_name == 'Generics.java':
-        instruction_path = "instructions" + os.path.sep + \
-            'Day 21 - ' + file_name_no_ext + ".pdf"
-        get_instructions_end = time.perf_counter_ns()
-        time_spent = get_instructions_end - get_instructions_start
-        global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
-        return instruction_path
+    subdirname = os.path.dirname(file)
+    dirname = os.path.dirname(subdirname)
+    if dirname == 'Tutorials' and subdirname == '30 days of Code':
+        if file_name == 'Generics.java':
+            instruction_path = "instructions" + os.path.sep + \
+                'Day 21 - ' + file_name_no_ext + ".pdf"
+            get_instructions_end = time.perf_counter_ns()
+            time_spent = get_instructions_end - get_instructions_start
+            global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
+            return instruction_path
     instruction_path = "instructions" + os.path.sep + file_name_no_ext + ".pdf"
-    full_path = global_vars.PROBLEMS + '30 days of Code' + os.path.sep + instruction_path
+    full_path = os.path.relpath(file) + os.path.sep + instruction_path
     if os.path.exists(full_path):
         get_instructions_end = time.perf_counter_ns()
         time_spent = get_instructions_end - get_instructions_start
@@ -252,8 +257,6 @@ def write_to_csv(problem_list):
                 f.write(string + '\n')
     except IOError:
         print('IOError occured while accessing', global_vars.DATAPATH)
-    except Exception:
-        raise Exception()
 
 
 def print_statistics(total_time):
@@ -300,8 +303,7 @@ def print_statistics(total_time):
     print("Average time to get instructions:", avg_get_instructions_time, "s")
 
 
-
-def main():
+if __name__ == '__main__':
     total_time_start = time.perf_counter_ns()
     # files_to_push()
     problem_list = process_problems()
@@ -309,5 +311,3 @@ def main():
     total_time_end = time.perf_counter_ns()
     total_time = total_time_end - total_time_start
     print_statistics(total_time)
-
-main()
