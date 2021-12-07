@@ -5,6 +5,7 @@ import sys  # for appending to path
 import platform  # for detecting os
 from datetime import datetime  # for converting to datetime
 from global_vars import HTML_FOLDER, FILE_BEFORE_SPECIAL, SPECIAL_FILE
+import time # for measuring execution time
 
 import global_vars  # for global variables
 from internet import get_problem_link_HTML  # for getting problem link from HTML
@@ -87,14 +88,12 @@ def get_code_files():
     args = ['git', 'pull']
     subprocess.Popen(args, stdout=subprocess.PIPE)
     result = list()
+    result = append_files_to_filelist()
 
-    def write_new_filelist():
-        result = append_files_to_filelist()
-
-        with open(FILE_LIST, 'w') as f:
-            for res in result:
-                f.write(res + '\n')
-        return result
+    with open(FILE_LIST, 'w') as f:
+        for res in result:
+            f.write(res + '\n')
+    return result
 
 
 def write_string_to_file(file_path, string, line_no):
@@ -119,6 +118,14 @@ def write_string_to_file(file_path, string, line_no):
 
 
 def correct_file_link(file_path, html_link):
+    """
+    Correct the problem link in a file and replace it with the HTML link
+
+    :param file_path: path to problem file
+    :type file_path: string
+    :param html_link: url to problem
+    :type html_link: string
+    """
     import_module(MISC_PATH)
     import fileUtil
     lines = fileUtil.read_file_to_list(file_path, True)
@@ -167,6 +174,7 @@ def get_write_problem_link(file_path, index):
     import_module(MISC_PATH)
     import fileUtil
     lines = fileUtil.read_file_to_list(file_path, True)
+    print(file_path)
     if len(lines) > 1:
         if lines[0] == global_vars.SHEBANG:
             if not lines[1].startswith(global_vars.FILE_LINK_BEGINNING):
@@ -198,47 +206,6 @@ def get_write_problem_link(file_path, index):
         link = None
         success = False
         return link, success
-
-
-def delete_excess_metainfo(file):
-    """
-    Checks for duplicate metainfo in the file and removes it
-
-    :param file_lines: lines of file
-    :type file_lines: list
-    :param file: path to file to check
-    :type file: string
-    :return: lines of file without duplicate metainfo
-    :rtype: list
-    """
-    file_lines = list()
-    metainfo = [global_vars.DIFFICULTY_PROMPT, global_vars.FILE_LINK_BEGINNING]
-    found = False
-    changed = False
-    metainfo_tuple = tuple(metainfo)
-    with open(file, 'r') as f:
-        for line in f:
-            file_lines.append(line)
-
-    for line in file_lines:
-        if line.startswith(metainfo_tuple):
-            if found is True:
-                changed = True
-                file_lines.remove(line)
-                continue
-            found = True
-            index = file_lines.index(line)
-    # difficulty is on wrong line
-    if not file_lines[DIFFICULTY_LINE_NUMBER - 1].startswith(global_vars.DIFFICULTY_PROMPT):
-        changed = True
-        file_lines[DIFFICULTY_LINE_NUMBER - 1] = file_lines[index]
-        file_lines.remove(file_lines[index])
-    # write changes to file
-    if changed is True:
-        with open(file, 'w') as f:
-            for line in file_lines:
-                f.write(line)
-    return file_lines
 
 
 def get_file_difficulty(file):
@@ -310,6 +277,60 @@ def get_creation_date(filename):
     temp = datetime.strftime(ts, global_vars.DATETIME_FORMAT)
     ts = datetime.strptime(temp, global_vars.DATETIME_FORMAT)
     return ts
+
+def get_solved_date(file):
+    """
+    Get the solved date of the given file
+
+    :param file: path to problem file
+    :type file: string
+    :raises ValueError: when wrong datetype is specified (in global constant)
+    :return: solved date of problem file
+    :rtype: datetime
+    """
+    get_solved_date_start = time.perf_counter_ns()
+    print("Get solved date for file " + file)
+    if global_vars.DATE not in ['creation', 'last modification', 'first commit']:
+        raise ValueError()
+    if global_vars.DATE == 'creation':
+        date = get_creation_date(file)
+        get_solved_date_end = time.perf_counter_ns()
+        time_spent = get_solved_date_end - get_solved_date_start
+        global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
+        return date
+    elif global_vars.DATE == 'last modified':
+        args = ['git', 'pull']
+        subprocess.Popen(args, stdout=subprocess.PIPE)
+
+        args = ['git', 'log', '--follow', '-- ' + "\"" + file + "\""]
+        p = subprocess.check_output(args, cwd=global_vars.PROBLEMS)
+
+        p = p.decode('utf-8')
+        p = p.split('\n')[2]
+        p = p[8:]
+        dt = datetime.strptime(p, global_vars.DATETIME_FORMAT)
+        get_solved_date_end = time.perf_counter_ns()
+        time_spent = get_solved_date_end - get_solved_date_start
+        global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
+        return dt
+    elif global_vars.DATE == 'first commit':
+        command = 'git log --diff-filter=A --follow --format=%aI -1 -- ' + "\"" + file + "\""
+        date = subprocess.check_output(command, cwd=global_vars.PROBLEMS)
+        temp = date.decode('utf-8')
+        temp = temp.split('\n')[0]
+        length = len(temp)
+        temp = temp[0:-3] + temp[-2:]  # delete colon between timezone
+        length = len(temp)
+        for i in range(length):
+            if(temp[i] == 'T'):
+                # replace T with space and cut timezone
+                temp = temp[0:i] + ' ' + temp[i + 1:length-5]
+                break
+        date_obj = datetime.strptime(temp, global_vars.DATETIME_FORMAT)
+        get_solved_date_end = time.perf_counter_ns()
+        time_spent = get_solved_date_end - get_solved_date_start
+        global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
+        return date_obj
 
 
 def clean_HTML_folder():
