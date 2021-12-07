@@ -3,7 +3,7 @@ import subprocess
 from datetime import datetime
 import global_vars
 import problem_fileUtil
-from internet import get_HTML_path, get_domains
+from internet import get_HTML_path, get_domains, get_html_difficulty
 import git  # for checking if there are uncommitted files
 from bs4 import BeautifulSoup
 import time  # for calculating execution time
@@ -36,8 +36,6 @@ class HackerRankProblem():
         :type domain: string
         :param subdomain: subcategory of problem
         :type subdomain: string or None
-        :param subsubdomain: subsubcategory of problem
-        :type subsubdomain: string or None
         :param difficulty: difficulty of hackerrank problem according to website
         :type difficulty: string
         :param solved_date: date when problem was solved
@@ -49,7 +47,6 @@ class HackerRankProblem():
         self.link = link
         self.domain = domain
         self.subdomain = subdomain
-        self.subsubdomain = subsubdomain
         self.difficulty = difficulty
         self.solved_date = solved_date
         self.instruction = instruction
@@ -68,7 +65,6 @@ def process_problems():
     for file in file_paths:
         index = file_paths.index(file)
         print("Converting file " + str(index) + " of " + str(length))
-        problem_fileUtil.delete_excess_metainfo(file)
         get_write_problem_link_time_start = time.perf_counter_ns()
         link, success = problem_fileUtil.get_write_problem_link(file, index)
         get_write_problem_link_time_end = time.perf_counter_ns()
@@ -76,25 +72,22 @@ def process_problems():
         global_vars.GET_WRITE_PROBLEM_LINK_TIMES.append(total_time)
         if success is False:
             errors.append(file)
-        splitted_path = file.split(os.path.sep)
-        # penultimate element in file path
-        code_folder = splitted_path[len(splitted_path) - 2]
-        html_file_path = get_HTML_path(code_folder)
+        get_domains_times_start = time.perf_counter_ns()
+        domain, subdomain = get_domains(file)
+        get_domains_times_end = time.perf_counter_ns()
+        time_spent = get_domains_times_end - get_domains_times_start
+        global_vars.GET_DOMAINS_TIMES.append(time_spent)
+        solved_date = problem_fileUtil.get_solved_date(file)
+        instruction = get_instructions(file, domain, subdomain)
+        instruction = '\"' + instruction + '\"'
+        html_file_path = get_HTML_path(domain, subdomain)
         if html_file_path is not None:
             # search for link
             open_html_file = open(html_file_path, 'r')
             soup = BeautifulSoup(open_html_file, 'html.parser')
-            get_domains_times_start = time.perf_counter_ns()
-            domain, subdomain, subsubdomain = get_domains(file, soup)
-            get_domains_times_end = time.perf_counter_ns()
-            time_spent = get_domains_times_end - get_domains_times_start
-            global_vars.GET_DOMAINS_TIMES.append(time_spent)
-            difficulty = get_difficulty(file, index, soup)
-            solved_date = get_solved_date(file)
-            instruction = get_instructions(file)
-            instruction = '\"' + instruction + '\"'
+            difficulty = get_difficulty(file, soup)
             problem = HackerRankProblem(
-                running_id, link, domain, subdomain, subsubdomain, difficulty, solved_date, instruction)
+                running_id, link, domain, subdomain, difficulty, solved_date, instruction)
             problem_list.append(problem)
             running_id += 1
     if len(errors) > 0:
@@ -104,22 +97,17 @@ def process_problems():
     return problem_list
 
 
-def get_difficulty(file, index, soup):
+def get_difficulty(file, soup):
     """
     Gets the difficulty of a HackerRank problem
     :returns: difficulty (string)
     """
     get_difficulty_start = time.perf_counter_ns()
     print("Get difficulty for " + file + "...")
-    found = False
     file_difficulty = problem_fileUtil.get_file_difficulty(file)
-    if file_difficulty is not None:
-        found = True
     # search for difficulty in HTML file
-    if found is True:
-        div = soup.find_all('div', attrs={'class': 'card-details'})[index]
-        first_child = next(div.children, None)
-        html_difficulty = first_child.text.strip()
+    if file_difficulty is not None:
+        html_difficulty = get_html_difficulty(file, soup)
         if html_difficulty != file_difficulty:
             problem_fileUtil.correct_file_difficulty(file, html_difficulty)
         get_difficulty_end = time.perf_counter_ns()
@@ -128,9 +116,7 @@ def get_difficulty(file, index, soup):
         return html_difficulty
     else:  # difficulty not found in file
         # get difficulty from HTML only
-        div = soup.find_all('div', attrs={'class': 'card-details'})[index]
-        first_child = next(div.children, None)
-        html_difficulty = first_child.text.strip()
+        html_difficulty = get_html_difficulty(file, soup)
         write_difficulty = global_vars.DIFFICULTY_PROMPT + html_difficulty + '\n'
         problem_fileUtil.write_string_to_file(
             file, write_difficulty, problem_fileUtil.DIFFICULTY_LINE_NUMBER)
@@ -140,62 +126,7 @@ def get_difficulty(file, index, soup):
         return html_difficulty
 
 
-def get_solved_date(file):
-    """
-    Get the solved date of the given file
-
-    :param file: path to problem file
-    :type file: string
-    :raises ValueError: when wrong datetype is specified (in global constant)
-    :return: solved date of problem file
-    :rtype: datetime
-    """
-    get_solved_date_start = time.perf_counter_ns()
-    print("Get solved date for file " + file)
-    if global_vars.DATE not in ['creation', 'last modification', 'first commit']:
-        raise ValueError()
-    if global_vars.DATE == 'creation':
-        date = problem_fileUtil.get_creation_date(file)
-        get_solved_date_end = time.perf_counter_ns()
-        time_spent = get_solved_date_end - get_solved_date_start
-        global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
-        return date
-    elif global_vars.DATE == 'last modified':
-        args = ['git', 'pull']
-        subprocess.Popen(args, stdout=subprocess.PIPE)
-
-        args = ['git', 'log', '--follow', '-- ' + "\"" + file + "\""]
-        p = subprocess.check_output(args, cwd=global_vars.PROBLEMS)
-
-        p = p.decode('utf-8')
-        p = p.split('\n')[2]
-        p = p[8:]
-        dt = datetime.strptime(p, global_vars.DATETIME_FORMAT)
-        get_solved_date_end = time.perf_counter_ns()
-        time_spent = get_solved_date_end - get_solved_date_start
-        global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
-        return dt
-    elif global_vars.DATE == 'first commit':
-        command = 'git log --diff-filter=A --follow --format=%aI -1 -- ' + "\"" + file + "\""
-        date = subprocess.check_output(command, cwd=global_vars.PROBLEMS)
-        temp = date.decode('utf-8')
-        temp = temp.split('\n')[0]
-        length = len(temp)
-        temp = temp[0:-3] + temp[-2:]  # delete colon between timezone
-        length = len(temp)
-        for i in range(length):
-            if(temp[i] == 'T'):
-                # replace T with space and cut timezone
-                temp = temp[0:i] + ' ' + temp[i + 1:length-5]
-                break
-        date_obj = datetime.strptime(temp, global_vars.DATETIME_FORMAT)
-        get_solved_date_end = time.perf_counter_ns()
-        time_spent = get_solved_date_end - get_solved_date_start
-        global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
-        return date_obj
-
-
-def get_instructions(file):
+def get_instructions(file, domain, subdomain):
     """
     Gets the instructions for a HackerRank problem if not present
     :string file: path to problem file
@@ -203,20 +134,18 @@ def get_instructions(file):
     """
     get_instructions_start = time.perf_counter_ns()
     print("Get instruction file for " + file + "...")
-    file_name = file.split(os.path.sep)[-1]
-    file_name_no_ext = os.path.splitext(file_name)[0]
+    filename_with_ext = file.split(os.path.sep)[-1]
+    filename_no_ext = filename_with_ext.split('.')[0]
     # link java file to correct instruction
-    subdirname = os.path.dirname(file)
-    dirname = os.path.dirname(subdirname)
-    if dirname == 'Tutorials' and subdirname == '30 days of Code':
-        if file_name == 'Generics.java':
+    if domain == 'Tutorials' and subdomain == '30 days of Code':
+        if filename_with_ext == 'Generics.java':
             instruction_path = "instructions" + os.path.sep + \
-                'Day 21 - ' + file_name_no_ext + ".pdf"
+                'Day 21 - ' + filename_no_ext + ".pdf"
             get_instructions_end = time.perf_counter_ns()
             time_spent = get_instructions_end - get_instructions_start
             global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
             return instruction_path
-    instruction_path = "instructions" + os.path.sep + file_name_no_ext + ".pdf"
+    instruction_path = "instructions" + os.path.sep + filename_no_ext + ".pdf"
     full_path = os.path.relpath(file) + os.path.sep + instruction_path
     if os.path.exists(full_path):
         get_instructions_end = time.perf_counter_ns()
