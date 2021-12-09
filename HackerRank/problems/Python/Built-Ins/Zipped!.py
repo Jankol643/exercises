@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#https://www.hackerrank.com/challenges/zipped/problem
+#https://www.hackerrank.com/challenges/zipped
 # Difficulty: Easy
 
 total_sub, total_student = input().split()

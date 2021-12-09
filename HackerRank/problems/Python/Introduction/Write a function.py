@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-#https://www.hackerrank.com/challenges/write-a-function/problem
-# Difficulty: Easy
+#https://www.hackerrank.com/challenges/write-a-function
+# Difficulty: Medium
 
 def is_leap(year):
     """

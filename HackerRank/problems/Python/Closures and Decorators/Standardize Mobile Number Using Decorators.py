@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#https://www.hackerrank.com/challenges/standardize-mobile-number-using-decorators/problem
+#https://www.hackerrank.com/challenges/standardize-mobile-number-using-decorators
 # Difficulty: Easy
 
 def wrapper(f):

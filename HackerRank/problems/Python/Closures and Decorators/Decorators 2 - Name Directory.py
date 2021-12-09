@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#https://www.hackerrank.com/challenges/decorators-2-name-directory/problem
+#https://www.hackerrank.com/challenges/decorators-2-name-directory
 # Difficulty: Easy
 
 import operator

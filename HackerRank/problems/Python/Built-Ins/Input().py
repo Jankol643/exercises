@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#https://www.hackerrank.com/challenges/input/problem
+#https://www.hackerrank.com/challenges/input
 # Difficulty: Easy
 
 ui = input().split()

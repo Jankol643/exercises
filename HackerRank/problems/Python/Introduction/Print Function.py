@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#https://www.hackerrank.com/challenges/python-print/problem
+#https://www.hackerrank.com/challenges/python-print
 # Difficulty: Easy
 
 if __name__ == '__main__':
