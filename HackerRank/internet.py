@@ -1,5 +1,6 @@
 import os
 from bs4 import BeautifulSoup  # for getting HTML elements of website
+import re # for cleaning filename
 
 from global_vars import HTML_FOLDER
 
@@ -9,31 +10,66 @@ def get_HTML_path(domain, subdomain):
         html_file_path = os.path.join(HTML_FOLDER, domain, subdomain + ".html")
     else:
         html_file_path = os.path.join(HTML_FOLDER, domain + ".html")
-    for path in os.listdir(HTML_FOLDER):
-        full_path = os.path.join(HTML_FOLDER, path)
-        if os.path.isfile(full_path):
-            if full_path.endswith('.html'):
-                if full_path == html_file_path:
-                    print("Found html", html_file_path)
-                    return html_file_path
+    for root, dirs, files in os.walk(HTML_FOLDER):
+        for file in files:
+            path = os.path.join(root, file)
+            if os.path.isfile(path):
+                if path.endswith('.html'):
+                    if path == html_file_path:
+                        return html_file_path
     return None
 
+
+def get_index_html(filename, soup):
+    """
+    Gets the index of a problem title in the HTML file
+
+    :param filename: name of problem file
+    :type filename: string
+    :param soup: HTML
+    :type soup: beautifulsoup item
+    :return: index of file in HTML, None if index was not found
+    :rtype: int, None
+    """
+    challenge_titles = soup.find_all(class_='challengecard-title')
+    challenge_titles_list = []
+    for item in challenge_titles:
+        challenge_titles_list.append(item.find(text=True, recursive=False))
+    filename_without_ext = filename.split('.')[0]
+    if filename_without_ext.startswith("Python -"):
+        filename_without_ext = filename_without_ext.replace(' -', ':', 1)
+    pattern = 'Day [0-9]+'
+    if re.search(pattern, filename):
+        filename_without_ext = filename_without_ext.replace(' -', ':', 1)
+    comma_count_filename = filename_without_ext.count(',')
+    for title in challenge_titles_list:
+        title_index = challenge_titles_list.index(title)
+        title = title.replace('.', '')
+        comma_count_title_name = title.count(',')
+        if (comma_count_title_name - comma_count_filename) == -1 or (comma_count_filename) == 1:
+            filename_without_ext = filename_without_ext.replace(',', '')
+            title = title.replace(',', '')
+        if filename_without_ext.lower() in title.lower():
+            return title_index
+    return None
 
 def get_problem_link_HTML(index, file_path):
     """
     Get the problem link from a HTML file
 
-    :param index: index of file in file list
+    :param index: index of file in file list (for displaying progress)
     :type index: int
     :param file_path: path to problem file
     :type file_path: string
     :raises NotImplementedError: when problem file is in a not recognized folder
     :raises FileNotFoundError: when HTML file could not be found
     :return: link to problem description on the internet or None, success
-    :rtype: string, None, True/False
+    :rtype: string, None, boolean
     """
     print("Get link for file " + str(index) + " (" + str(file_path) + ")" + " ...")
-    html_file_path = get_HTML_path(file_path)
+    domain = file_path.split(os.path.sep)[2]
+    subdomain = file_path.split(os.path.sep)[3]
+    html_file_path = get_HTML_path(domain, subdomain)
     link = None
     if html_file_path is not None:
         # search for link
@@ -41,26 +77,17 @@ def get_problem_link_HTML(index, file_path):
         open_html_file = open(html_file_path, 'r')
         soup = BeautifulSoup(open_html_file, 'html.parser')
         challenge_list_items = soup.find_all('a', attrs={'class': 'challenge-list-item'})
-        challenge_titles = soup.find_all(class_='challengecard-title')
-        challenge_titles_list = []
-        for item in challenge_titles:
-            challenge_titles_list.append(item.find(text=True, recursive=False))
-        filename_without_ext = filename.split('.')[0]
-        for item in challenge_list_items:
-            item_index = challenge_list_items.index(item)
-            file_name_html = challenge_titles_list[item_index]
-            chars_to_replace = [':']
-            for char in chars_to_replace:
-                file_name_html.replace(char, '')
-            if filename_without_ext.lower() in file_name_html.lower():
-                link = challenge_list_items[item_index]['href']
-                break
-
+        idx = get_index_html(filename, soup)
         open_html_file.close()
-        if link is not None:
-            link = link.split('?')[0]
-            success = True
-            return link, success
+        if idx is not None:
+            link = challenge_list_items[idx]['href']
+            if link is not None:
+                link = link.split('?')[0]
+                success = True
+                return link, success
+            else:
+                success = False
+                return link, success
         else:
             success = False
             return link, success
@@ -73,8 +100,7 @@ def get_domains(file):
     :returns: domain, subdomain
     """
     print("Get domains for file " + file + "...")
-    domain_list = list()
-    domain_list.append(file.split(os.path.sep))
+    domain_list = file.split(os.path.sep)
     domain = domain_list[2]
     if len(domain_list) > 3:
         subdomain = domain_list[3]
@@ -82,7 +108,7 @@ def get_domains(file):
         subdomain = None
     return domain, subdomain
 
-def get_html_difficulty(file, soup):
+def get_difficulty_HTML(file, soup):
     """
     Gets the difficulty of a HackerRank problem from the corresponding HTML
 
@@ -92,8 +118,14 @@ def get_html_difficulty(file, soup):
     :type soup: beautifulsoup object
     """
     # Extract problem title from filename
-    title = file.split(os.path.sep)[-1].split('.')[0]
-    div = soup.find_all('div', attrs={'class': 'card-details'})[index]
-    first_child = next(div.children, None)
-    html_difficulty = first_child.text.strip()    
-    return html_difficulty
+    filename = file.split(os.path.sep)[-1].split('.')[0]
+    idx = get_index_html(filename, soup)
+    if idx is not None:
+        challenge_difficulties = soup.find_all(class_='difficulty')
+        challenge_difficulties_list = []
+        for item in challenge_difficulties:
+            challenge_difficulties_list.append(item.find(text=True, recursive=False))
+        html_difficulty = challenge_difficulties_list[idx]
+        return html_difficulty
+    else:
+        return None
