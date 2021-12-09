@@ -65,18 +65,19 @@ def append_files_to_filelist():
     import_module(MISC_PATH)
     import masterUtil
     result = masterUtil.sort_logically(result)
-
-    for file in result:
-        if SPECIAL_FILE in file:
-            result.remove(file)
-        if FILE_BEFORE_SPECIAL in file:
-            idx = result.index(file)
-            folder_path = file.split(os.path.sep)[0:-1]
-            separator = os.path.sep
-            folder_path = separator.join(folder_path)
-            java_file_path = folder_path + os.path.sep + SPECIAL_FILE
-            result.insert(idx + 1, java_file_path)
-    return result
+    indices = [i for i, s in enumerate(result) if FILE_BEFORE_SPECIAL in s]
+    if len(indices) > 0:
+        result2 = result.copy()
+        folder_path = result2[indices[0]].split(os.path.sep)[0:-1]
+        separator = os.path.sep
+        folder_path = separator.join(folder_path)
+        java_file_path = folder_path + os.path.sep + SPECIAL_FILE
+        result2.insert(int(indices[0]) + 1, java_file_path)
+        indices2 = [i for i, s in enumerate(result2) if SPECIAL_FILE in s]
+        result2.pop(int(indices2[-1]))
+        return result2
+    else:
+        return result
 
 
 def get_code_files():
