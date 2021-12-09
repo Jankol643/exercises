@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#https://www.hackerrank.com/challenges/python-arithmetic-operators/problem
+#https://www.hackerrank.com/challenges/python-arithmetic-operators
 # Difficulty: Easy
 
 if __name__ == '__main__':
