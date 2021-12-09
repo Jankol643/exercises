@@ -3,10 +3,11 @@ import subprocess
 from datetime import datetime
 import global_vars
 import problem_fileUtil
-from internet import get_HTML_path, get_domains, get_html_difficulty
+from internet import get_HTML_path, get_domains, get_difficulty_HTML
 import git  # for checking if there are uncommitted files
 from bs4 import BeautifulSoup
 import time  # for calculating execution time
+import re
 
 
 def files_to_push():
@@ -24,7 +25,7 @@ def files_to_push():
 
 
 class HackerRankProblem():
-    def __init__(self, problem_id, link, domain, subdomain, subsubdomain, difficulty, solved_date, instruction):
+    def __init__(self, problem_id, link, domain, subdomain, difficulty, solved_date, instruction):
         """
         Initializes a new HackerRankProblem
 
@@ -64,7 +65,7 @@ def process_problems():
     length = len(file_paths)
     for file in file_paths:
         index = file_paths.index(file)
-        print("Converting file " + str(index) + " of " + str(length))
+        print("Converting file " + str(index + 1) + " of " + str(length))
         get_write_problem_link_time_start = time.perf_counter_ns()
         link, success = problem_fileUtil.get_write_problem_link(file, index)
         get_write_problem_link_time_end = time.perf_counter_ns()
@@ -77,19 +78,17 @@ def process_problems():
         get_domains_times_end = time.perf_counter_ns()
         time_spent = get_domains_times_end - get_domains_times_start
         global_vars.GET_DOMAINS_TIMES.append(time_spent)
-        solved_date = problem_fileUtil.get_solved_date(file)
-        instruction = get_instructions(file, domain, subdomain)
-        instruction = '\"' + instruction + '\"'
-        html_file_path = get_HTML_path(domain, subdomain)
-        if html_file_path is not None:
-            # search for link
-            open_html_file = open(html_file_path, 'r')
-            soup = BeautifulSoup(open_html_file, 'html.parser')
-            difficulty = get_difficulty(file, soup)
-            problem = HackerRankProblem(
-                running_id, link, domain, subdomain, difficulty, solved_date, instruction)
-            problem_list.append(problem)
-            running_id += 1
+        #solved_date = problem_fileUtil.get_solved_date(file)
+        solved_date = None
+        instruction = get_instructions(file)
+        if instruction is not None:
+            instruction = '\"' + instruction + '\"'
+        difficulty = get_difficulty(file, domain, subdomain)
+        problem = HackerRankProblem(
+            running_id, link, domain, subdomain, difficulty, solved_date, instruction)
+        problem_list.append(problem)
+        running_id += 1
+        print('----------------------------------------------')
     if len(errors) > 0:
         print("Errors occured in following files: ")
         for item in errors:
@@ -97,7 +96,7 @@ def process_problems():
     return problem_list
 
 
-def get_difficulty(file, soup):
+def get_difficulty(file, domain, subdomain):
     """
     Gets the difficulty of a HackerRank problem
     :returns: difficulty (string)
@@ -105,28 +104,48 @@ def get_difficulty(file, soup):
     get_difficulty_start = time.perf_counter_ns()
     print("Get difficulty for " + file + "...")
     file_difficulty = problem_fileUtil.get_file_difficulty(file)
-    # search for difficulty in HTML file
-    if file_difficulty is not None:
-        html_difficulty = get_html_difficulty(file, soup)
-        if html_difficulty != file_difficulty:
-            problem_fileUtil.correct_file_difficulty(file, html_difficulty)
-        get_difficulty_end = time.perf_counter_ns()
-        time_spent = get_difficulty_end - get_difficulty_start
-        global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
-        return html_difficulty
-    else:  # difficulty not found in file
-        # get difficulty from HTML only
-        html_difficulty = get_html_difficulty(file, soup)
-        write_difficulty = global_vars.DIFFICULTY_PROMPT + html_difficulty + '\n'
-        problem_fileUtil.write_string_to_file(
-            file, write_difficulty, problem_fileUtil.DIFFICULTY_LINE_NUMBER)
-        get_difficulty_end = time.perf_counter_ns()
-        time_spent = get_difficulty_end - get_difficulty_start
-        global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
-        return html_difficulty
+    html_file_path = get_HTML_path(domain, subdomain)
+    if html_file_path is not None:
+        open_html_file = open(html_file_path, 'r')
+        soup = BeautifulSoup(open_html_file, 'html.parser')
+        # search for difficulty in HTML file
+        html_difficulty = get_difficulty_HTML(file, soup)
+        if file_difficulty is not None:
+            if html_difficulty is None:
+                get_difficulty_end = time.perf_counter_ns()
+                time_spent = get_difficulty_end - get_difficulty_start
+                global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
+                return file_difficulty
+            else:
+                if html_difficulty != file_difficulty:
+                    problem_fileUtil.correct_file_difficulty(file, html_difficulty)
+                get_difficulty_end = time.perf_counter_ns()
+                time_spent = get_difficulty_end - get_difficulty_start
+                global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
+                return html_difficulty
+        else:
+            # difficulty not found in file
+            html_difficulty = get_difficulty_HTML(file, soup)
+            get_difficulty_end = time.perf_counter_ns()
+            time_spent = get_difficulty_end - get_difficulty_start
+            global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
+            return html_difficulty
+    else:  # HTML not found
+        # get difficulty from file only
+        if file_difficulty is not None:
+            get_difficulty_end = time.perf_counter_ns()
+            time_spent = get_difficulty_end - get_difficulty_start
+            global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
+            return file_difficulty
+        else:
+            # html and file difficulty not found
+            get_difficulty_end = time.perf_counter_ns()
+            time_spent = get_difficulty_end - get_difficulty_start
+            global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
+            return None
 
 
-def get_instructions(file, domain, subdomain):
+def get_instructions(file):
     """
     Gets the instructions for a HackerRank problem if not present
     :string file: path to problem file
@@ -135,8 +154,9 @@ def get_instructions(file, domain, subdomain):
     get_instructions_start = time.perf_counter_ns()
     print("Get instruction file for " + file + "...")
     filename_with_ext = file.split(os.path.sep)[-1]
-    filename_no_ext = filename_with_ext.split('.')[0]
+    filename_no_ext = filename_with_ext.split('.')[0].replace('\'', '').replace('!', '')
     # link java file to correct instruction
+    """
     if domain == 'Tutorials' and subdomain == '30 days of Code':
         if filename_with_ext == 'Generics.java':
             instruction_path = "instructions" + os.path.sep + \
@@ -145,13 +165,27 @@ def get_instructions(file, domain, subdomain):
             time_spent = get_instructions_end - get_instructions_start
             global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
             return instruction_path
-    instruction_path = "instructions" + os.path.sep + filename_no_ext + ".pdf"
-    full_path = os.path.relpath(file) + os.path.sep + instruction_path
-    if os.path.exists(full_path):
+    """
+    full_path = os.path.dirname(file) + os.path.sep + "instructions" + os.path.sep
+    if os.path.isdir(full_path):
+        for item in os.listdir(full_path):
+            path = os.path.join(full_path, item)
+            if os.path.isfile(path):
+                item = item.replace('-English', '')
+                pattern = 'Day [0-9]+'
+                pattern2 = '[A-Za-z]+-[A-Za-z]+'
+                if re.search(pattern, item) is None and re.search(pattern2, item) is not None:
+                    item = item.replace('-', ' ')
+                item_no_ext = item.split('.')[0]
+                if filename_no_ext.lower() in item_no_ext.lower() and item.endswith('.pdf'):
+                    get_instructions_end = time.perf_counter_ns()
+                    time_spent = get_instructions_end - get_instructions_start
+                    global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
+                    return path
         get_instructions_end = time.perf_counter_ns()
         time_spent = get_instructions_end - get_instructions_start
         global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
-        return instruction_path
+        return None
     else:
         get_instructions_end = time.perf_counter_ns()
         time_spent = get_instructions_end - get_instructions_start
@@ -170,7 +204,7 @@ def write_to_csv(problem_list):
             # write column names to file
             result = list()
             dummy_obj = HackerRankProblem(
-                0, 'http', 'domain', 'test', 'test', 'Easy', '14.3.21', 'link')
+                0, 'http', 'domain', 'subdomain', 'Easy', '14.3.21', 'link')
             for key in dummy_obj.__dict__:
                 result.append(key)
             string = ','.join(result)
