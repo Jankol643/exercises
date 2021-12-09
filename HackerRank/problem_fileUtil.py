@@ -5,7 +5,7 @@ import sys  # for appending to path
 import platform  # for detecting os
 from datetime import datetime  # for converting to datetime
 from global_vars import HTML_FOLDER, FILE_BEFORE_SPECIAL, SPECIAL_FILE
-import time # for measuring execution time
+import time  # for measuring execution time
 
 import global_vars  # for global variables
 from internet import get_problem_link_HTML  # for getting problem link from HTML
@@ -175,7 +175,6 @@ def get_write_problem_link(file_path, index):
     import_module(MISC_PATH)
     import fileUtil
     lines = fileUtil.read_file_to_list(file_path, True)
-    print(file_path)
     if len(lines) > 1:
         if lines[0] == global_vars.SHEBANG:
             if not lines[1].startswith(global_vars.FILE_LINK_BEGINNING):
@@ -279,6 +278,7 @@ def get_creation_date(filename):
     ts = datetime.strptime(temp, global_vars.DATETIME_FORMAT)
     return ts
 
+
 def get_solved_date(file):
     """
     Get the solved date of the given file
@@ -299,44 +299,48 @@ def get_solved_date(file):
         time_spent = get_solved_date_end - get_solved_date_start
         global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
         return date
-    elif global_vars.DATE == 'last modified':
+    elif global_vars.DATE == 'last modified' or 'first commit':
         args = ['git', 'pull']
         subprocess.Popen(args, stdout=subprocess.PIPE)
 
-        args = ['git', 'log', '--follow', '-- ' + "\"" + file + "\""]
-        p = subprocess.check_output(args, cwd=global_vars.PROBLEMS)
+        splitted_path = file.split(os.path.sep)[2:]
+        file = os.path.sep.join(splitted_path)
+        if global_vars.DATE == 'last modified':
+            args = ['git', 'log', '--follow', '-- ' + "\"" + file + "\""]
+            p = subprocess.check_output(args, cwd=global_vars.PROBLEMS)
 
-        p = p.decode('utf-8')
-        p = p.split('\n')[2]
-        p = p[8:]
-        dt = datetime.strptime(p, global_vars.DATETIME_FORMAT)
-        get_solved_date_end = time.perf_counter_ns()
-        time_spent = get_solved_date_end - get_solved_date_start
-        global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
-        return dt
-    elif global_vars.DATE == 'first commit':
-        command = 'git log --diff-filter=A --follow --format=%aI -1 -- ' + "\"" + file + "\""
-        date = subprocess.check_output(command, cwd=global_vars.PROBLEMS)
-        temp = date.decode('utf-8')
-        temp = temp.split('\n')[0]
-        length = len(temp)
-        temp = temp[0:-3] + temp[-2:]  # delete colon between timezone
-        length = len(temp)
-        for i in range(length):
-            if(temp[i] == 'T'):
-                # replace T with space and cut timezone
-                temp = temp[0:i] + ' ' + temp[i + 1:length-5]
-                break
-        date_obj = datetime.strptime(temp, global_vars.DATETIME_FORMAT)
-        get_solved_date_end = time.perf_counter_ns()
-        time_spent = get_solved_date_end - get_solved_date_start
-        global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
-        return date_obj
+            p = p.decode('utf-8')
+            p = p.split('\n')[2]
+            p = p[8:]
+            dt = datetime.strptime(p, global_vars.DATETIME_FORMAT)
+            get_solved_date_end = time.perf_counter_ns()
+            time_spent = get_solved_date_end - get_solved_date_start
+            global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
+            return dt
+        if global_vars.DATE == 'first commit':
+            command = 'git log --diff-filter=A --follow --format=%aI -1 -- ' + "\"" + file + "\""
+            date = subprocess.check_output(command, cwd=global_vars.PROBLEMS)
+
+            temp = date.decode('utf-8')
+            temp = temp.split('\n')[0]
+            length = len(temp)
+            temp = temp[0:-3] + temp[-2:]  # delete colon between timezone
+            length = len(temp)
+            for i in range(length):
+                if(temp[i] == 'T'):
+                    # replace T with space and cut timezone
+                    temp = temp[0:i] + ' ' + temp[i + 1:length-5]
+                    break
+            date_obj = datetime.strptime(temp, global_vars.DATETIME_FORMAT)
+            get_solved_date_end = time.perf_counter_ns()
+            time_spent = get_solved_date_end - get_solved_date_start
+            global_vars.GET_SOLVED_DATE_TIMES.append(time_spent)
+            return date_obj
 
 
 def clean_HTML_folder():
 
-    def correct_html_filenames(entry):
+    def correct_filenames(entry):
         old_path = entry
         # clean filename and folder
         tmp = entry.replace('Solve ', '')
@@ -373,9 +377,9 @@ def clean_HTML_folder():
                     for line in updated_lines:
                         f.write(line)
 
-                correct_html_filenames(entry)
+                correct_filenames(entry)
 
     for entry in dir_list:
         old_name = entry.split(os.path.sep)[-1]
         if '_' in old_name:
-            correct_html_filenames(entry)
+            correct_filenames(entry)
