@@ -10,7 +10,7 @@ def get_HTML_path(domain, subdomain):
         html_file_path = os.path.join(HTML_FOLDER, domain, subdomain + ".html")
     else:
         html_file_path = os.path.join(HTML_FOLDER, domain + ".html")
-    for root, dirs, files in os.walk(HTML_FOLDER):
+    for root, _, files in os.walk(HTML_FOLDER):
         for file in files:
             path = os.path.join(root, file)
             if os.path.isfile(path):
