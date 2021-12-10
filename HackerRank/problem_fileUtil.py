@@ -350,16 +350,15 @@ def clean_HTML_folder():
 
     file_list = []
     dir_list = []
-    for root, dirs, files in os.walk(HTML_FOLDER):
+    for root, directories, files in os.walk(HTML_FOLDER):
         for f in files:
             if f.endswith('.html'):
                 file_list.append(os.path.join(root, f))
-        for dir in dirs:
+        for dir in directories:
             dir_list.append(os.path.join(root, dir))
 
     for entry in file_list:
         old_name = entry.split(os.path.sep)[-1]
-        idx = file_list.index(entry)
         if '_' in old_name:
             if old_name.endswith('.html'):
                 # update references
