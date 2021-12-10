@@ -1,19 +1,11 @@
-HackerRank\problems\Python\Introduction\1_Arithmetic Operators.py
-HackerRank\problems\Python\Closures and Decorators\1_Standardize Mobile Number Using Decorators.py
-HackerRank\problems\Python\Built-Ins\1_Zipped!.py
-HackerRank\problems\Python\Closures and Decorators\2_Decorators 2 - Name Directory.py
-HackerRank\problems\Python\Built-Ins\2_Input().py
-HackerRank\problems\Python\Introduction\2_Python Division.py
-HackerRank\problems\Python\Introduction\3_Loops.py
-HackerRank\problems\Python\Introduction\4_Write a function.py
-HackerRank\problems\Python\Introduction\5_Print Function.py
+HackerRank\problems\Python\Introduction\Arithmetic Operators.py
 HackerRank\problems\Tutorials\30 days of Code\Day 0 - Hello, World.py
 HackerRank\problems\Tutorials\30 days of Code\Day 1 - Data Types.py
 HackerRank\problems\Tutorials\30 days of Code\Day 2 - Operators.py
 HackerRank\problems\Tutorials\30 days of Code\Day 3 - Intro to Conditional Statements.py
 HackerRank\problems\Tutorials\30 days of Code\Day 4 - Class vs Instance.py
 HackerRank\problems\Tutorials\30 days of Code\Day 5 - Loops.py
-HackerRank\problems\Tutorials\30 days of Code\Day 6 - Lets Review.py
+HackerRank\problems\Tutorials\30 days of Code\Day 6 - Let's Review.py
 HackerRank\problems\Tutorials\30 days of Code\Day 7 - Arrays.py
 HackerRank\problems\Tutorials\30 days of Code\Day 8 - Dictionaries and Maps.py
 HackerRank\problems\Tutorials\30 days of Code\Day 9 - Recursion 3.py
@@ -28,15 +20,24 @@ HackerRank\problems\Tutorials\30 days of Code\Day 17 - More Exceptions.py
 HackerRank\problems\Tutorials\30 days of Code\Day 18 - Queues and Stacks.py
 HackerRank\problems\Tutorials\30 days of Code\Day 19 - Interfaces.py
 HackerRank\problems\Tutorials\30 days of Code\Day 20 - Sorting.py
+HackerRank\problems\Tutorials\30 days of Code\Generics.java
 HackerRank\problems\Tutorials\30 days of Code\Day 22 - Binary Search Trees.py
-HackerRank\problems\Tutorials\30 days of Code\Day 23 - BST Level Order Traversal.py
+HackerRank\problems\Tutorials\30 days of Code\Day 23 - BST Level-Order Traversal.py
 HackerRank\problems\Tutorials\30 days of Code\Day 24 - More Linked Lists.py
 HackerRank\problems\Tutorials\30 days of Code\Day 25 - Running Time and Complexity.py
 HackerRank\problems\Tutorials\30 days of Code\Day 26 - Nested Logic.py
 HackerRank\problems\Tutorials\30 days of Code\Day 27 - Testing.py
 HackerRank\problems\Tutorials\30 days of Code\Day 28 - RegEx, Patterns and Intro to Databases.py
 HackerRank\problems\Tutorials\30 days of Code\Day 29 - Bitwise AND.py
-HackerRank\problems\Python\Basic Data Types\find the runner up score!.py
+HackerRank\problems\Python\Closures and Decorators\Decorators 2 - Name Directory.py
+HackerRank\problems\Python\Built-Ins\Input().py
+HackerRank\problems\Python\Introduction\Loops.py
+HackerRank\problems\Python\Introduction\Print Function.py
+HackerRank\problems\Python\Introduction\Python - Division.py
+HackerRank\problems\Python\Closures and Decorators\Standardize Mobile Number Using Decorators.py
+HackerRank\problems\Python\Introduction\Write a function.py
+HackerRank\problems\Python\Built-Ins\Zipped!.py
+HackerRank\problems\Python\Basic Data Types\find the runner-up score!.py
 HackerRank\problems\Python\Basic Data Types\finding the percentage.py
 HackerRank\problems\Python\Basic Data Types\list comprehensions.py
 HackerRank\problems\Python\Basic Data Types\nested lists.py
