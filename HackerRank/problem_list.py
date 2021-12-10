@@ -1,6 +1,4 @@
 import os
-import subprocess
-from datetime import datetime
 import global_vars
 import problem_fileUtil
 from internet import get_HTML_path, get_domains, get_difficulty_HTML
@@ -155,27 +153,20 @@ def get_instructions(file):
     print("Get instruction file for " + file + "...")
     filename_with_ext = file.split(os.path.sep)[-1]
     filename_no_ext = filename_with_ext.split('.')[0].replace('\'', '').replace('!', '')
-    # link java file to correct instruction
-    """
-    if domain == 'Tutorials' and subdomain == '30 days of Code':
-        if filename_with_ext == 'Generics.java':
-            instruction_path = "instructions" + os.path.sep + \
-                'Day 21 - ' + filename_no_ext + ".pdf"
-            get_instructions_end = time.perf_counter_ns()
-            time_spent = get_instructions_end - get_instructions_start
-            global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
-            return instruction_path
-    """
+    pattern = 'Day [0-9]+'
+    pattern2 = '[A-Za-z]+-[A-Za-z]+'
+    if re.search(pattern, filename_no_ext) is None and re.search(pattern2, filename_no_ext) is not None:
+        filename_no_ext = filename_no_ext.replace('-', ' ')
+    filename_no_ext = ' '.join(filename_no_ext.split()) # delete unneccessary spaces
     full_path = os.path.dirname(file) + os.path.sep + "instructions" + os.path.sep
     if os.path.isdir(full_path):
         for item in os.listdir(full_path):
             path = os.path.join(full_path, item)
             if os.path.isfile(path):
                 item = item.replace('-English', '')
-                pattern = 'Day [0-9]+'
-                pattern2 = '[A-Za-z]+-[A-Za-z]+'
                 if re.search(pattern, item) is None and re.search(pattern2, item) is not None:
                     item = item.replace('-', ' ')
+                item = ' '.join(item.split()) # delete unneccessary spaces
                 item_no_ext = item.split('.')[0]
                 if filename_no_ext.lower() in item_no_ext.lower() and item.endswith('.pdf'):
                     get_instructions_end = time.perf_counter_ns()
