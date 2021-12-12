@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# https://www.hackerrank.com/challenges/python-lists/problem
+#https://www.hackerrank.com/challenges/python-lists
 # Difficulty: Easy
 
 if __name__ == '__main__':

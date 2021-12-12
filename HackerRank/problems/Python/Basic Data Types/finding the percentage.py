@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 #https://www.hackerrank.com/challenges/finding-the-percentage
+# Difficulty: Easy
+
 """
 Reads an list of n student grades and a student to search for and prints the average grade for that student
 The grades of each students are entered after the student name separated with spaces

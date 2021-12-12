@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#https://www.hackerrank.com/challenges/python-tuples
+#https://www.hackerrank.com/challenges/swap-case
 # Difficulty: Easy
 
 def swap_case(s):
