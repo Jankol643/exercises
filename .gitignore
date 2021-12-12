@@ -171,3 +171,5 @@ bin
 .classpath
 .project
 .settings
+
+items.csv
