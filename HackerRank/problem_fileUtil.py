@@ -97,12 +97,14 @@ def get_code_files():
     return result
 
 
-def write_string_to_file(file_path, string, line_no):
+def write_string_to_file(file_path, string, line_no, empty_line):
     """
     Write string to file
     :string file_path: file to write to
     :string string: string to write
     :int line_no: line number to write to
+    :param empty_line: if line after string should be empty
+    :type empty_line: boolean
     """
     import_module(MISC_PATH)
     import fileUtil
@@ -113,6 +115,8 @@ def write_string_to_file(file_path, string, line_no):
     else:
         # insert string into desired line of file
         file_lines.insert(line_no - 1, string)
+    if empty_line is True:
+        file_lines.insert(line_no, '')
     with open(file_path, 'w') as f:
         for line in file_lines:
             f.write(line + '\n')
@@ -150,8 +154,9 @@ def check_links_equal(file_path, lines, index):
     # check if file link and html link are equal
     html_link, success = get_problem_link_HTML(index, file_path)
     if success is True:
+        file_link = file_link[1:]  # remove comment sign ('#') from link
         if file_link == html_link:
-            link = file_link[1:]  # remove comment sign ('#') from link
+            link = file_link
         else:
             correct_file_link(file_path, html_link)
             link = html_link
@@ -172,6 +177,7 @@ def get_write_problem_link(file_path, index):
     :int index: index of code file
     :returns: link, success (link is None and success is false if link cannot be found)
     """
+    print("Get link ...")
     import_module(MISC_PATH)
     import fileUtil
     lines = fileUtil.read_file_to_list(file_path, True)
@@ -182,7 +188,7 @@ def get_write_problem_link(file_path, index):
                 if success is True:
                     write_link = '#' + html_link
                     write_string_to_file(
-                        file_path, write_link, LINK_LINE_NUMBER)
+                        file_path, write_link, LINK_LINE_NUMBER, False)
                 return html_link, success
             else:  # first line is shebang, second line is link
                 link, success = check_links_equal(file_path, lines, index)
@@ -200,7 +206,7 @@ def get_write_problem_link(file_path, index):
                 if success is True:
                     write_link = '#' + link
                     write_string_to_file(
-                        file_path, write_link, LINK_LINE_NUMBER)
+                        file_path, write_link, LINK_LINE_NUMBER, False)
                 return link, success
     else:  # file has only one line
         link = None
