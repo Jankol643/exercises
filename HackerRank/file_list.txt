@@ -31,15 +31,18 @@ HackerRank\problems\Tutorials\30 days of Code\Day 28 - RegEx, Patterns and Intro
 HackerRank\problems\Tutorials\30 days of Code\Day 29 - Bitwise AND.py
 HackerRank\problems\Python\Closures and Decorators\Decorators 2 - Name Directory.py
 HackerRank\problems\Python\Built-Ins\Input().py
+HackerRank\problems\Python\Basic Data Types\Lists.py
 HackerRank\problems\Python\Introduction\Loops.py
 HackerRank\problems\Python\Introduction\Print Function.py
 HackerRank\problems\Python\Introduction\Python - Division.py
 HackerRank\problems\Python\Closures and Decorators\Standardize Mobile Number Using Decorators.py
+HackerRank\problems\Python\Basic Data Types\Tuples.py
 HackerRank\problems\Python\Introduction\Write a function.py
 HackerRank\problems\Python\Built-Ins\Zipped!.py
 HackerRank\problems\Python\Basic Data Types\find the runner-up score!.py
 HackerRank\problems\Python\Basic Data Types\finding the percentage.py
 HackerRank\problems\Python\Basic Data Types\list comprehensions.py
 HackerRank\problems\Python\Basic Data Types\nested lists.py
+HackerRank\problems\Python\Strings\sWAP cASE.py
 HackerRank\problems\Python\Basic Data Types\validating credit card numbers.py
 HackerRank\problems\Python\Regex and Parsing\validating postal codes.py
