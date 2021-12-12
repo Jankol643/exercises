@@ -63,7 +63,7 @@ def process_problems():
     length = len(file_paths)
     for file in file_paths:
         index = file_paths.index(file)
-        print("Converting file " + str(index + 1) + " of " + str(length))
+        print("Converting file " + str(index + 1) + " of " + str(length) + " (" + file + ")")
         get_write_problem_link_time_start = time.perf_counter_ns()
         link, success = problem_fileUtil.get_write_problem_link(file, index)
         get_write_problem_link_time_end = time.perf_counter_ns()
@@ -100,7 +100,7 @@ def get_difficulty(file, domain, subdomain):
     :returns: difficulty (string)
     """
     get_difficulty_start = time.perf_counter_ns()
-    print("Get difficulty for " + file + "...")
+    print("Get difficulty ...")
     file_difficulty = problem_fileUtil.get_file_difficulty(file)
     html_file_path = get_HTML_path(domain, subdomain)
     if html_file_path is not None:
@@ -110,11 +110,13 @@ def get_difficulty(file, domain, subdomain):
         html_difficulty = get_difficulty_HTML(file, soup)
         if file_difficulty is not None:
             if html_difficulty is None:
+                # difficulty found only in file
                 get_difficulty_end = time.perf_counter_ns()
                 time_spent = get_difficulty_end - get_difficulty_start
                 global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
                 return file_difficulty
             else:
+                # difficulty found in HTML and file
                 if html_difficulty != file_difficulty:
                     problem_fileUtil.correct_file_difficulty(file, html_difficulty)
                 get_difficulty_end = time.perf_counter_ns()
@@ -123,11 +125,20 @@ def get_difficulty(file, domain, subdomain):
                 return html_difficulty
         else:
             # difficulty not found in file
-            html_difficulty = get_difficulty_HTML(file, soup)
-            get_difficulty_end = time.perf_counter_ns()
-            time_spent = get_difficulty_end - get_difficulty_start
-            global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
-            return html_difficulty
+            if html_difficulty is not None:
+                # write difficulty to file
+                difficulty = global_vars.DIFFICULTY_PROMPT + html_difficulty
+                problem_fileUtil.write_string_to_file(file, difficulty, problem_fileUtil.DIFFICULTY_LINE_NUMBER, True)
+                get_difficulty_end = time.perf_counter_ns()
+                time_spent = get_difficulty_end - get_difficulty_start
+                global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
+                return html_difficulty
+            else:
+                # difficulty not found in file and HTML
+                get_difficulty_end = time.perf_counter_ns()
+                time_spent = get_difficulty_end - get_difficulty_start
+                global_vars.GET_DIFFICULTY_TIMES.append(time_spent)
+                return None
     else:  # HTML not found
         # get difficulty from file only
         if file_difficulty is not None:
@@ -150,7 +161,7 @@ def get_instructions(file):
     :returns: path to instruction file
     """
     get_instructions_start = time.perf_counter_ns()
-    print("Get instruction file for " + file + "...")
+    print("Get instruction file ...")
     filename_with_ext = file.split(os.path.sep)[-1]
     filename_no_ext = filename_with_ext.split('.')[0].replace('\'', '').replace('!', '')
     pattern = 'Day [0-9]+'
@@ -168,7 +179,12 @@ def get_instructions(file):
                     item = item.replace('-', ' ')
                 item = ' '.join(item.split()) # delete unneccessary spaces
                 item_no_ext = item.split('.')[0]
-                if filename_no_ext.lower() in item_no_ext.lower() and item.endswith('.pdf'):
+                if filename_with_ext == global_vars.SPECIAL_FILE and filename_no_ext.lower() in item_no_ext.lower() and item.endswith('.pdf'):
+                    get_instructions_end = time.perf_counter_ns()
+                    time_spent = get_instructions_end - get_instructions_start
+                    global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
+                    return path
+                if filename_no_ext.lower() == item_no_ext.lower() and item.endswith('.pdf'):
                     get_instructions_end = time.perf_counter_ns()
                     time_spent = get_instructions_end - get_instructions_start
                     global_vars.GET_INSTRUCTIONS_TIMES.append(time_spent)
