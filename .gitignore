@@ -165,11 +165,11 @@ hs_err_pid*
 quelltext
 *.zip
 test[0-9]*.py
-file_list.txt
 .metadata
 bin
 .classpath
 .project
 .settings
 
-items.csv
+HackerRank/file_list.txt
+HackerRank/items.csv
