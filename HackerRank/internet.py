@@ -2,7 +2,7 @@ import os
 from bs4 import BeautifulSoup  # for getting HTML elements of website
 import re # for cleaning filename
 
-from global_vars import HTML_FOLDER
+from global_vars import HTML_FOLDER, SPECIAL_FILE
 
 def get_HTML_path(domain, subdomain):
     # get correct HTML file
@@ -44,12 +44,17 @@ def get_index_html(filename, soup):
     comma_count_filename = filename_without_ext.count(',')
     for title in challenge_titles_list:
         title_index = challenge_titles_list.index(title)
+        if filename == SPECIAL_FILE:
+            if filename_without_ext.lower() in title.lower():
+                return title_index
         title = title.replace('.', '')
+        title = ' '.join(title.split()) # delete unneccessary spaces
         comma_count_title_name = title.count(',')
-        if (comma_count_title_name - comma_count_filename) == -1 or (comma_count_filename) == 1:
+        comma_diff = comma_count_title_name - comma_count_filename
+        if comma_diff == -1 or comma_diff == 1:
             filename_without_ext = filename_without_ext.replace(',', '')
             title = title.replace(',', '')
-        if filename_without_ext.lower() in title.lower():
+        if filename_without_ext.lower() == title.lower():
             return title_index
     return None
 
@@ -66,7 +71,6 @@ def get_problem_link_HTML(index, file_path):
     :return: link to problem description on the internet or None, success
     :rtype: string, None, boolean
     """
-    print("Get link for file " + str(index) + " (" + str(file_path) + ")" + " ...")
     domain = file_path.split(os.path.sep)[2]
     subdomain = file_path.split(os.path.sep)[3]
     html_file_path = get_HTML_path(domain, subdomain)
@@ -92,14 +96,14 @@ def get_problem_link_HTML(index, file_path):
             success = False
             return link, success
     else: # HTML file not found
-        raise FileNotFoundError("Corresponding HTML file for " + file_path + " wasn´t found.")
+        raise FileNotFoundError("Corresponding HTML file for " + file_path + " wasn't found.")
 
 def get_domains(file):
     """
     Gets the domain hierarchy of a HackerRank problem (maximum depth = 3)
     :returns: domain, subdomain
     """
-    print("Get domains for file " + file + "...")
+    print("Get domains ...")
     domain_list = file.split(os.path.sep)
     domain = domain_list[2]
     if len(domain_list) > 3:
