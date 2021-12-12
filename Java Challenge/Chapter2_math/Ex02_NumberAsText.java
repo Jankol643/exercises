@@ -15,7 +15,6 @@ public class Ex02_NumberAsText {
         if (n < 0)
             throw new IllegalArgumentException("No negative values allowed.");
 
-        int remainingValue = n;
         String valueAsText = "";
         int temp = n;
         while (temp > 0) {
