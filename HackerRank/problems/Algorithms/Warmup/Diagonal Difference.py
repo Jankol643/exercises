@@ -1,4 +1,6 @@
-#!/bin/python3
+#!/usr/bin/env python3
+#https://www.hackerrank.com/challenges/diagonal-difference
+# Difficulty: Easy
 
 import os
 
